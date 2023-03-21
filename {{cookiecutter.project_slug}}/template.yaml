@@ -1,0 +1,126 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+    {{ cookiecutter.project_description }}
+
+Parameters:
+  DeploymentAwsRegion:
+    Type: String
+    Description: Deployment region
+    AllowedValues:
+      - us-east-1
+      - us-east-2
+      - us-west-2
+      - eu-west-1
+      - eu-west-2
+    Default: us-east-1
+
+Mappings:
+  RegionMap:
+    us-east-1:
+      lambda-powertools-layer-arn: "arn:aws:lambda:us-east-1:017000801446:layer:AWSLambdaPowertoolsPythonV2:24"
+    us-east-2:
+      lambda-powertools-layer-arn: "arn:aws:lambda:us-east-2:017000801446:layer:AWSLambdaPowertoolsPythonV2:24"
+    us-west-2:
+      lambda-powertools-layer-arn: "arn:aws:lambda:us-west-2:017000801446:layer:AWSLambdaPowertoolsPythonV2:24"
+    eu-west-1:
+      lambda-powertools-layer-arn: "arn:aws:lambda:eu-west-1:017000801446:layer:AWSLambdaPowertoolsPythonV2:24"
+    eu-west-2:
+      lambda-powertools-layer-arn: "arn:aws:lambda:eu-west-2:017000801446:layer:AWSLambdaPowertoolsPythonV2:24"
+
+Globals:
+    Api:
+      EndpointConfiguration: REGIONAL
+      TracingEnabled: true
+      BinaryMediaTypes:                   # https://awslabs.github.io/aws-lambda-powertools-python/latest/core/event_handler/api_gateway/#binary-responses
+        - '*~1*'  # converts to */* for any binary type
+    Function:
+      Timeout: 5
+      MemorySize: 256
+      Runtime: python3.9
+      Tracing: Active
+      AutoPublishAlias: live
+      {%- if cookiecutter.production_environment == "yes" %}
+      # More info about Safe Deployments: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-function-deploymentpreference.html
+      DeploymentPreference:
+          Type: {{cookiecutter.deployment_preference}}{% endif %}
+      # Embed Lambda Powertools as a shared Layer
+      # See: https://awslabs.github.io/aws-lambda-powertools-python/latest/#lambda-layer
+      Layers:
+          - !FindInMap [ RegionMap, !Ref "AWS::Region", lambda-powertools-layer-arn ]
+      Environment:
+          Variables:
+              # Powertools env vars: https://awslabs.github.io/aws-lambda-powertools-python/#environment-variables
+              LOG_LEVEL: INFO
+              POWERTOOLS_LOGGER_SAMPLE_RATE: 0.1
+              POWERTOOLS_LOGGER_LOG_EVENT: true
+              POWERTOOLS_METRICS_NAMESPACE: SampleCardApp
+
+Resources:
+  GetBalanceFunction:
+      Type: AWS::Serverless::Function # More info about Function Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html
+      Properties:
+          CodeUri: ./src/get_balance/
+          Handler: app.lambda_handler
+          Description: GetBalance Function
+          Events:
+              GetBalance:
+                  Type: Api # More info about API Event Source: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-function-api.html
+                  Properties:
+                      Path: /get-balance/{id}
+                      Method: GET
+          # Policies: # Example inline policy
+          #     - Version: "2012-10-17"
+          #     Statement:
+          #         - Effect: "Allow"
+          #         Action:
+          #             - "ssm:GetParameter"
+          #         Resource:
+          #             - "*"
+          Environment:
+              Variables:
+                  POWERTOOLS_SERVICE_NAME: get_balance
+          Tags:
+              LambdaPowertools: pyconus2023
+  PostPaymentFunction:
+      Type: AWS::Serverless::Function # More info about Function Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html
+      Properties:
+          CodeUri: ./src/post_payment/
+          Handler: app.lambda_handler
+          Description: PostPayment Function
+          Events:
+              PostPayment:
+                  Type: Api # More info about API Event Source: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-function-api.html
+                  Properties:
+                      Path: /payment/{id}
+                      Method: POST
+          # Policies: # Example inline policy
+          #     - Version: "2012-10-17"
+          #     Statement:
+          #         - Effect: "Allow"
+          #         Action:
+          #             - "ssm:GetParameter"
+          #         Resource:
+          #             - "*"
+          Environment:
+              Variables:
+                  POWERTOOLS_SERVICE_NAME: post_payment
+          Tags:
+              LambdaPowertools: pyconus2023
+
+Outputs:
+  GetBalanceUrl:
+    Description: "API Gateway endpoint URL for Prod environment for Hello World Function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/get-balance"
+
+  PostPaymentUrl:
+    Description: "API Gateway endpoint URL for Prod environment for Hello World Function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/payment"
+  
+  GetBalanceFunction:
+    Description: "GetBalance Lambda Function ARN"
+    Value: !GetAtt GetBalanceFunction.Arn
+  
+  PostPaymentFunction:
+    Description: "PostPayment Lambda Function ARN"
+    Value: !GetAtt PostPaymentFunction.Arn

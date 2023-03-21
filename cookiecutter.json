@@ -1,0 +1,14 @@
+{
+    "project_name": "PyCon US 2023",
+    "project_slug": "{{ cookiecutter.project_name.lower().replace(' ', '-') }}",
+    "project_description": "Code example for Capital One sponsored serverless talk at PyCon US 2023",
+    "production_environment": ["yes", "no"],
+    "deployment_preference": [
+        "Canary10Percent30Minutes",
+        "Canary10Percent15Minutes",
+        "Canary10Percent5Minutes",
+        "Linear10PercentEvery10Minutes",
+        "Linear10PercentEvery3Minutes",
+        "Linear10PercentEvery1Minute"
+    ]
+}
