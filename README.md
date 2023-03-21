@@ -15,7 +15,7 @@ This [Cookiecutter](https://github.com/cookiecutter/cookiecutter) project suppor
 To get started, run the following `sam init` command and respond to the prompts.
 
 ```bash
-sam init --location gh:aws-samples/mcnamarabrian/pycon2023
+sam init --location git@github.com:mcnamarabrian/pycon2023
 ```
 
 **NOTE:** Do _not_ try to clone this project directly. The rendered project will be tailored based upon your responses to several prompts.
