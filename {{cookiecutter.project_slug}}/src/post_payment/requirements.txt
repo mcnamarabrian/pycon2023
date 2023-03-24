@@ -1,4 +1,0 @@
-# We're using the AWS Lambda Powertools Lambda layer, otherwise we could
-# include the Python package here.
-
-# aws-lambda-powertools

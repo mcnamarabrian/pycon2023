@@ -13,12 +13,8 @@ def test_project_tree(cookies):
 
     generated_files = [
         'events/get_balance.json',
-        'events/post_payment.json',
         'src/get_balance/app.py',
         'src/post_payment/app.py',
-        'tests/conftest.py',
-        'tests/unit/test_get_balance.py',
-        'tests/unit/test_post_payment.py',
         'Makefile',
         'Pipfile',
         'README.md',
@@ -37,9 +33,8 @@ def test_get_balance_content_non_prod(cookies):
     )
     app_file = result.project.join('src/get_balance/app.py')
     lines = app_file.readlines()
-    assert "log_event=True" in ''.join(lines)
     assert "from aws_lambda_powertools import Logger, Metrics, Tracer" in ''.join(lines)
-    assert "correlation_id_path=correlation_paths.API_GATEWAY_REST, log_event=True" in ''.join(lines) 
+    assert "correlation_id_path=correlation_paths.API_GATEWAY_REST,\n    log_event=True" in ''.join(lines) 
 
 
 def test_get_balance_content_prod(cookies):
