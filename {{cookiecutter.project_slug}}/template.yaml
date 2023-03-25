@@ -25,7 +25,6 @@ Globals:
         MemorySize: 256
         Runtime: python3.9
         Tracing: Active
-        AutoPublishAlias: live
         {%- if cookiecutter.production_environment == "yes" %}
         # More info about Safe Deployments: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-function-deploymentpreference.html
         DeploymentPreference:
@@ -70,14 +69,6 @@ Resources:
                     type: "aws_proxy"
             x-amazon-apigateway-binary-media-types:
             - "*/*"
-
-  GetBalanceApiPermission:
-      Type: AWS::Lambda::Permission
-      Properties:
-          Action: "lambda:InvokeFunction"
-          FunctionName: !Ref GetBalanceFunction
-          Principal: "apigateway.amazonaws.com"
-          SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${CardApi}/*/GET/get-balance"
 
   GetBalanceFunctionLogGroup: 
       Type: AWS::Logs::LogGroup
