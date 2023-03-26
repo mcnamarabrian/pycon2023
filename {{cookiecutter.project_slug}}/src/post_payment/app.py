@@ -1,4 +1,6 @@
+import base64
 from datetime import datetime
+import json
 import random
 
 from aws_lambda_powertools import Logger, Tracer
@@ -15,23 +17,33 @@ tracer = Tracer()
 logger = Logger()
 app = APIGatewayRestResolver()
 
+payment_outcomes = ['success', 'failure']
+weighted_outcomes = random.choices(
+    payment_outcomes, cum_weights=(90, 10),
+    k=100
+)
 
-@app.get("/balance/<user_id>")
+@app.post("/payment")
 @tracer.capture_method
-def get_balance(user_id: str) -> dict:
-    balance = random.randint(0, 10000)
+def post_payment() -> dict:
     current_timestamp = datetime.now()
+
+    raw_post_body = base64.b64decode(app.current_event.body)
+    post_body = json.loads(raw_post_body)
+
     logger.info({
-        "user_id": user_id,
-        "balance": balance,
+        "user_id": post_body['user_id'],
+        "amount": post_body['amount'],
+        "outcome": random.choice(weighted_outcomes),
         "timestamp": current_timestamp.isoformat()
     })
 
     return {
-        "user_id": user_id,
-        "balance": balance,
+        "user_id": post_body['user_id'],
+        "amount": post_body['amount'],
+        "outcome": random.choice(weighted_outcomes),
         "timestamp": current_timestamp.isoformat()
-    }
+    }, 200
 
 
 @app.not_found

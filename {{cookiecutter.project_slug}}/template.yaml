@@ -5,41 +5,41 @@ Description: >
 
 Mappings:
   RegionMap:
-    us-east-1:
-      lambdaPowertoolsLayerArn: "arn:aws:lambda:us-east-1:017000801446:layer:AWSLambdaPowertoolsPythonV2:24"
-    us-east-2:
-      lambdaPowertoolsLayerArn: "arn:aws:lambda:us-east-2:017000801446:layer:AWSLambdaPowertoolsPythonV2:24"
-    us-west-2:
-      lambdaPowertoolsLayerArn: "arn:aws:lambda:us-west-2:017000801446:layer:AWSLambdaPowertoolsPythonV2:24"
-    eu-west-1:
-      lambdaPowertoolsLayerArn: "arn:aws:lambda:eu-west-1:017000801446:layer:AWSLambdaPowertoolsPythonV2:24"
-    eu-west-2:
-      lambdaPowertoolsLayerArn: "arn:aws:lambda:eu-west-2:017000801446:layer:AWSLambdaPowertoolsPythonV2:24"
+      us-east-1:
+          lambdaPowertoolsLayerArn: "arn:aws:lambda:us-east-1:017000801446:layer:AWSLambdaPowertoolsPythonV2:24"
+      us-east-2:
+          lambdaPowertoolsLayerArn: "arn:aws:lambda:us-east-2:017000801446:layer:AWSLambdaPowertoolsPythonV2:24"
+      us-west-2:
+          lambdaPowertoolsLayerArn: "arn:aws:lambda:us-west-2:017000801446:layer:AWSLambdaPowertoolsPythonV2:24"
+      eu-west-1:
+          lambdaPowertoolsLayerArn: "arn:aws:lambda:eu-west-1:017000801446:layer:AWSLambdaPowertoolsPythonV2:24"
+      eu-west-2:
+          lambdaPowertoolsLayerArn: "arn:aws:lambda:eu-west-2:017000801446:layer:AWSLambdaPowertoolsPythonV2:24"
 
 Globals:
     Api:
-        EndpointConfiguration: REGIONAL
-        TracingEnabled: true
+          EndpointConfiguration: REGIONAL
+          TracingEnabled: true
     Function:
-        Timeout: 5
-        MemorySize: 256
-        Runtime: python3.9
-        Tracing: Active
-        {%- if cookiecutter.production_environment == "yes" %}
-        # More info about Safe Deployments: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-function-deploymentpreference.html
-        DeploymentPreference:
-            Type: {{cookiecutter.deployment_preference}}{% endif %}
-        # Embed Lambda Powertools as a shared Layer
-        # See: https://awslabs.github.io/aws-lambda-powertools-python/latest/#lambda-layer
-        Layers:
-            - !FindInMap [ RegionMap, !Ref "AWS::Region", lambdaPowertoolsLayerArn ]
-        Environment:
-            Variables:
-                # Powertools env vars: https://awslabs.github.io/aws-lambda-powertools-python/#environment-variables
-                LOG_LEVEL: INFO
-                POWERTOOLS_LOGGER_SAMPLE_RATE: 0.1
-                POWERTOOLS_LOGGER_LOG_EVENT: true
-                POWERTOOLS_METRICS_NAMESPACE: SampleCardApp
+          Timeout: 5
+          MemorySize: 256
+          Runtime: python3.9
+          Tracing: Active
+          {%- if cookiecutter.production_environment == "yes" %}
+          # More info about Safe Deployments: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-function-deploymentpreference.html
+          DeploymentPreference:
+              Type: {{cookiecutter.deployment_preference}}{% endif %}
+          # Embed Lambda Powertools as a shared Layer
+          # See: https://awslabs.github.io/aws-lambda-powertools-python/latest/#lambda-layer
+          Layers:
+              - !FindInMap [ RegionMap, !Ref "AWS::Region", lambdaPowertoolsLayerArn ]
+          Environment:
+              Variables:
+                  # Powertools env vars: https://awslabs.github.io/aws-lambda-powertools-python/#environment-variables
+                  LOG_LEVEL: INFO
+                  POWERTOOLS_LOGGER_SAMPLE_RATE: 0.1
+                  POWERTOOLS_LOGGER_LOG_EVENT: true
+                  POWERTOOLS_METRICS_NAMESPACE: {{ cookiecutter.project_slug }}
 
 Resources:
   CardApi:
@@ -65,6 +65,13 @@ Resources:
                   x-amazon-apigateway-integration:
                     httpMethod: "POST"
                     uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetBalanceFunction.Arn}/invocations"
+                    passthroughBehavior: "when_no_match"
+                    type: "aws_proxy"
+              /payment:
+                post:
+                  x-amazon-apigateway-integration:
+                    httpMethod: "POST"
+                    uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PostPaymentFunction.Arn}/invocations"
                     passthroughBehavior: "when_no_match"
                     type: "aws_proxy"
             x-amazon-apigateway-binary-media-types:
@@ -97,11 +104,47 @@ Resources:
           Tags:
               ServerlessApplication: {{ cookiecutter.project_slug }}
 
+  PostPaymentFunctionLogGroup:
+      Type: AWS::Logs::LogGroup
+      Properties:
+          LogGroupName: !Sub "/aws/lambda/${PostPaymentFunction}"
+          RetentionInDays: 14
+          Tags:
+            - Key: ServerlessApplication
+              Value: {{ cookiecutter.project_slug }}
+
+  PostPaymentFunction:
+      Type: AWS::Serverless::Function # More info about Function Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html
+      Properties:
+          CodeUri: ./src/post_payment/
+          Handler: app.lambda_handler
+          Description: PostPayment Function
+          Events:
+              GetBalance:
+                  Type: Api # More info about API Event Source: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-function-api.html
+                  Properties:
+                      Path: /payment
+                      Method: POST
+                      RestApiId: !Ref CardApi
+          Environment:
+              Variables:
+                  POWERTOOLS_SERVICE_NAME: post_payment
+          Tags:
+              ServerlessApplication: {{ cookiecutter.project_slug }}
+
 Outputs:
   GetBalanceUrl:
-    Description: "API Gateway endpoint URL for Prod environment for Hello World Function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/v1/get-balance"
+      Description: "API Gateway endpoint URL for GetBalanceFunction"
+      Value: !Sub "https://${CardApi}.execute-api.${AWS::Region}.amazonaws.com/v1/balance/{user-id}"
 
   GetBalanceFunction:
-    Description: "GetBalance Lambda Function ARN"
-    Value: !GetAtt GetBalanceFunction.Arn
+      Description: "GetBalance Lambda Function ARN"
+      Value: !GetAtt GetBalanceFunction.Arn
+
+  PostPaymentUrl:
+      Description: "API Gateway endpoint URL for PostPaymentFunction"
+      Value: !Sub "https://${CardApi}.execute-api.${AWS::Region}.amazonaws.com/v1/payment"
+
+  PostPaymentFunction:
+      Description: "PostPayment Lambda Function ARN"
+      Value: !GetAtt PostPaymentFunction.Arn

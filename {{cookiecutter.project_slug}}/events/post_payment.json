@@ -1,8 +1,8 @@
 {
-  "body": "",
-  "resource": "/balance",
-  "path": "/balance/b0479af6-0744-4d4f-91af-c7731a5f33e2",
-  "httpMethod": "GET",
+  "body": "ewogICAgInVzZXJfaWQiOiAiYnJpYW4iLAogICAgImFtb3VudCI6IDEwMAp9",
+  "resource": "/payment",
+  "path": "/payment",
+  "httpMethod": "POST",
   "isBase64Encoded": true,
   "headers": {
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
@@ -100,9 +100,9 @@
       "userAgent": "Custom User Agent String",
       "user": null
     },
-    "path": "/v1/balance/b0479af6-0744-4d4f-91af-c7731a5f33e2",
-    "resourcePath": "/balance",
-    "httpMethod": "GET",
+    "path": "/v1/payment",
+    "resourcePath": "/payment",
+    "httpMethod": "POST",
     "apiId": "1234567890",
     "protocol": "HTTP/1.1"
   }
