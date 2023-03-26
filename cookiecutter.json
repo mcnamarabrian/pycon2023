@@ -3,6 +3,14 @@
     "project_slug": "{{ cookiecutter.project_name.lower().replace(' ', '-') }}",
     "project_description": "Code example for Capital One sponsored serverless talk at PyCon US 2023",
     "production_environment": ["yes", "no"],
+    "aws_region": [
+        "us-east-1",
+        "us-east-2",
+        "us-west-2",
+        "eu-west-1",
+        "eu-west-2"
+    ],
+    "aws_iam_profile": "Valid AWS IAM profile for deployment",
     "deployment_preference": [
         "Canary10Percent30Minutes",
         "Canary10Percent15Minutes",

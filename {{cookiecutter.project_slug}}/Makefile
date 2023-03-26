@@ -8,7 +8,7 @@ target:
 
 .PHONY: clean
 clean:
-	$(info [*] Who needs all that anyway? Destroying environment....)
+	$(info [*] Destroying environment....)
 	rm -rf ./.aws-sam/
 
 .PHONY: all
@@ -29,16 +29,19 @@ shell:
 	@$(PIPENV) shell
 
 build: ##=> Same as package except that we don't create a ZIP
-	sam build --use-container
+	sam build --use-container --region {{ cookiecutter.aws_region }} --profile {{ cookiecutter.aws_iam_profile }}
 
 deploy.guided: ##=> Guided deploy that is typically run for the first time only
-	sam deploy --guided
+	sam deploy --guided --region {{ cookiecutter.aws_region }} --profile {{ cookiecutter.aws_iam_profile }}
 
 deploy: ##=> Deploy app using previously saved SAM CLI configuration
-	sam deploy
+	sam deploy --region {{ cookiecutter.aws_region }} --profile {{ cookiecutter.aws_iam_profile }}
 
-invoke: ##=> Run SAM Local function with a given event payload
-	@sam local invoke HelloWorldFunction --event events/hello.json
+invoke-get-balance: ##=> Run SAM Local function with a given event payload
+	@sam local invoke GetBalanceFunction --event events/get_balance.json
+
+invoke-post-payment: ##=> Run SAM Local function with a given event payload
+	@sam local invoke GetBalanceFunction --event events/post_payment.json
 
 run: ##=> Run SAM Local API GW and can optionally run new containers connected to a defined network
 	@test -z ${NETWORK} \
@@ -90,9 +93,6 @@ define HELP_MESSAGE
 
 	...::: Cleans up the environment - Deletes Virtualenv, ZIP builds and Dev env :::...
 	$ make clean
-
-	...::: Run full workflow from installing Pipenv, dev and app deps, build, and deploy :::...
-	$ make ci
 
 	Advanced usage:
 
