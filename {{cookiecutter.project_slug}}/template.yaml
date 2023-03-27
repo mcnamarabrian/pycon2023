@@ -76,8 +76,23 @@ Resources:
                     type: "aws_proxy"
             x-amazon-apigateway-binary-media-types:
             - "*/*"
+          AccessLoggedApi:
+          AccessLogSetting:
+              DestinationArn: !GetAtt AccessLogGroup.Arn
+              Format: '{"requestTime":"$context.requestTime","requestId":"$context.requestId","ip": "$context.identity.sourceIp","httpMethod":"$context.httpMethod","path":"$context.path","resourcePath":"$context.resourcePath","status":$context.status,"responseLatency":$context.responseLatency}'
 
-  GetBalanceFunctionLogGroup: 
+  CardApiLogGroup:
+      Type: AWS::Logs::LogGroup
+      Properties:
+          LogGroupName: !Sub "/aws/api-gateway/${CardApi}-access-logs"
+          RetentionInDays: 14
+          Tags:
+            - Key: ServerlessApplication
+              Value: {{ cookiecutter.project_slug }}
+
+
+
+  GetBalanceFunctionLogGroup:
       Type: AWS::Logs::LogGroup
       Properties:
           LogGroupName: !Sub "/aws/lambda/${GetBalanceFunction}"
