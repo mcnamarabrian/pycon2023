@@ -93,6 +93,19 @@ def test_get_balance_content_prod(cookies):
     assert "from aws_lambda_powertools import Logger, Tracer" in ''.join(lines)
     assert "log_event=True" not in ''.join(lines)
 
+def test_get_balance_content_nonprod(cookies):
+    result = cookies.bake(
+        extra_context={
+            'project_slug': 'pyconus2023',
+            'production_environment': 'no'
+        }
+    )
+    app_file = result.project.join('src/post_payment/app.py')
+    lines = app_file.readlines()
+    assert "from aws_lambda_powertools import Logger, Tracer" in ''.join(lines)
+    assert "correlation_id_path=correlation_paths.API_GATEWAY_REST,\n    log_event=True" in ''.join(lines)
+
+
 def test_prod_deployment_preference_in_sam_template(cookies):
     result = cookies.bake(
         extra_context={

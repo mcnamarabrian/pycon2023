@@ -42,8 +42,38 @@ Globals:
                   POWERTOOLS_METRICS_NAMESPACE: {{ cookiecutter.project_slug }}
 
 Resources:
+  ApiCloudWatchRole:
+      Type: 'AWS::IAM::Role'
+      Properties:
+          AssumeRolePolicyDocument:
+              Version: 2012-10-17
+              Statement:
+                  - Effect: Allow
+                    Principal:
+                      Service:
+                        - apigateway.amazonaws.com
+                    Action: 'sts:AssumeRole'
+              ManagedPolicyArns:
+                  - >-
+                    arn:aws:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs
+
+  Account:
+      Type: 'AWS::ApiGateway::Account'
+      Properties:
+          CloudWatchRoleArn: !GetAtt ApiCloudWatchRole.Arn
+
+  CardApiLogGroup:
+      Type: AWS::Logs::LogGroup
+      Properties:
+          LogGroupName: !Sub "/aws/api-gateway/${CardApi}-access-logs"
+          RetentionInDays: 14
+          Tags:
+            - Key: ServerlessApplication
+              Value: {{ cookiecutter.project_slug }}
+
   CardApi:
       Type: AWS::Serverless::Api
+      DependsOn: ApiCloudWatchRole
       Properties:
           StageName: v1
           DefinitionBody:
@@ -57,10 +87,10 @@ Resources:
               /balance/{user_id}:
                 get:
                   parameters:
-                  - name: "user_id"
-                    in: "path"
-                    required: true
-                    type: "string"
+                      - name: "user_id"
+                        in: "path"
+                        required: true
+                        type: "string"
                   responses: {}
                   x-amazon-apigateway-integration:
                     httpMethod: "POST"
@@ -74,23 +104,11 @@ Resources:
                     uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PostPaymentFunction.Arn}/invocations"
                     passthroughBehavior: "when_no_match"
                     type: "aws_proxy"
-            x-amazon-apigateway-binary-media-types:
-            - "*/*"
-          AccessLoggedApi:
           AccessLogSetting:
-              DestinationArn: !GetAtt AccessLogGroup.Arn
+              DestinationArn: !GetAtt CardApiLogGroup.Arn
               Format: '{"requestTime":"$context.requestTime","requestId":"$context.requestId","ip": "$context.identity.sourceIp","httpMethod":"$context.httpMethod","path":"$context.path","resourcePath":"$context.resourcePath","status":$context.status,"responseLatency":$context.responseLatency}'
-
-  CardApiLogGroup:
-      Type: AWS::Logs::LogGroup
-      Properties:
-          LogGroupName: !Sub "/aws/api-gateway/${CardApi}-access-logs"
-          RetentionInDays: 14
           Tags:
-            - Key: ServerlessApplication
-              Value: {{ cookiecutter.project_slug }}
-
-
+              ServerlessApplication: {{ cookiecutter.project_slug}}
 
   GetBalanceFunctionLogGroup:
       Type: AWS::Logs::LogGroup
@@ -98,8 +116,8 @@ Resources:
           LogGroupName: !Sub "/aws/lambda/${GetBalanceFunction}"
           RetentionInDays: 14
           Tags:
-            - Key: ServerlessApplication
-              Value: {{ cookiecutter.project_slug }}
+              - Key: ServerlessApplication
+                Value: {{ cookiecutter.project_slug }}
 
   GetBalanceFunction:
       Type: AWS::Serverless::Function # More info about Function Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html
@@ -125,8 +143,8 @@ Resources:
           LogGroupName: !Sub "/aws/lambda/${PostPaymentFunction}"
           RetentionInDays: 14
           Tags:
-            - Key: ServerlessApplication
-              Value: {{ cookiecutter.project_slug }}
+              - Key: ServerlessApplication
+                Value: {{ cookiecutter.project_slug }}
 
   PostPaymentFunction:
       Type: AWS::Serverless::Function # More info about Function Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html
@@ -152,13 +170,13 @@ Outputs:
       Description: "API Gateway endpoint URL for GetBalanceFunction"
       Value: !Sub "https://${CardApi}.execute-api.${AWS::Region}.amazonaws.com/v1/balance/{user-id}"
 
-  GetBalanceFunction:
-      Description: "GetBalance Lambda Function ARN"
-      Value: !GetAtt GetBalanceFunction.Arn
-
   PostPaymentUrl:
       Description: "API Gateway endpoint URL for PostPaymentFunction"
       Value: !Sub "https://${CardApi}.execute-api.${AWS::Region}.amazonaws.com/v1/payment"
+
+  GetBalanceFunction:
+      Description: "GetBalance Lambda Function ARN"
+      Value: !GetAtt GetBalanceFunction.Arn
 
   PostPaymentFunction:
       Description: "PostPayment Lambda Function ARN"
