@@ -173,11 +173,3 @@ Outputs:
   PostPaymentUrl:
       Description: "API Gateway endpoint URL for PostPaymentFunction"
       Value: !Sub "https://${CardApi}.execute-api.${AWS::Region}.amazonaws.com/v1/payment"
-
-  GetBalanceFunction:
-      Description: "GetBalance Lambda Function ARN"
-      Value: !GetAtt GetBalanceFunction.Arn
-
-  PostPaymentFunction:
-      Description: "PostPayment Lambda Function ARN"
-      Value: !GetAtt PostPaymentFunction.Arn

@@ -29,19 +29,31 @@ shell:
 	@$(PIPENV) shell
 
 build: ##=> Same as package except that we don't create a ZIP
-	sam build --use-container --region {{ cookiecutter.aws_region }} --profile {{ cookiecutter.aws_iam_profile }}
+	sam build --use-container --region us-east-2 --profile brian-admin
 
 deploy.guided: ##=> Guided deploy that is typically run for the first time only
-	sam deploy --guided --region {{ cookiecutter.aws_region }} --profile {{ cookiecutter.aws_iam_profile }}
+	sam deploy --guided --region us-east-2 --profile brian-admin
 
 deploy: ##=> Deploy app using previously saved SAM CLI configuration
-	sam deploy --region {{ cookiecutter.aws_region }} --profile {{ cookiecutter.aws_iam_profile }}
+	sam deploy --region us-east-2 --profile brian-admin
 
-invoke-get-balance: ##=> Run SAM Local function with a given event payload
-	@sam local invoke GetBalanceFunction --event events/get_balance.json
+invoke-valid-get-balance: ##=> Run SAM Local function with a given event payload
+	@sam local invoke GetBalanceFunction --event events/valid_get_balance.json
 
-invoke-post-payment: ##=> Run SAM Local function with a given event payload
-	@sam local invoke GetBalanceFunction --event events/post_payment.json
+invoke-valid-post-payment: ##=> Run SAM Local function with a given event payload
+	@sam local invoke PostPaymentFunction --event events/valid_post_payment.json
+
+invoke-invalid-get-balance: ##=> Run SAM Local function with a given event payload
+	@sam local invoke GetBalanceFunction --event events/invalid_get_balance.json
+
+invoke-invalid-amount-post-payment: ##=> Run SAM Local function with a given event payload
+	@sam local invoke PostPaymentFunction --event events/invalid_amount_post_payment.json
+
+invoke-invalid-date-post-payment: ##=> Run SAM Local function with a given event payload
+	@sam local invoke PostPaymentFunction --event events/invalid_date_post_payment.json
+
+invoke-missing-userid-post-payment: ##=> Run SAM Local function with a given event payload
+	@sam local invoke PostPaymentFunction --event events/invalid_missing_userid_post_payment.json
 
 run: ##=> Run SAM Local API GW and can optionally run new containers connected to a defined network
 	@test -z ${NETWORK} \

@@ -1,5 +1,5 @@
 {
-  "body": "ewogICAgInVzZXJfaWQiOiAiYnJpYW4iLAogICAgImFtb3VudCI6IDEwMAp9",
+  "body": "eyJwYXltZW50X2RhdGUiOiAiMjEwMC0wNS0wMSIsICJhbW91bnQiOiAxMDAwLCAidXNlcl9pZCI6ICJicmlhbiJ9",
   "resource": "/payment",
   "path": "/payment",
   "httpMethod": "POST",
@@ -83,7 +83,7 @@
   "requestContext": {
     "accountId": "123456789012",
     "resourceId": "123456",
-    "stage": "prod",
+    "stage": "v1",
     "requestId": "c6af9ac6-7b61-11e6-9a41-93e8deadbeef",
     "requestTime": "09/Apr/2015:12:34:56 +0000",
     "requestTimeEpoch": 1428582896000,
