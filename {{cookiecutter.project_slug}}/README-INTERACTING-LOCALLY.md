@@ -40,7 +40,7 @@ You can test how your `GetBalanceFunction` and `PostPaymentFunction` functions r
 You can test out what happens when a valid balance request is made.
 
 ```bash
-make invoke-get-balance
+make invoke-valid-get-balance
 ```
 
 ```bash
@@ -109,7 +109,7 @@ make invoke-invalid-get-balance
 </details>
 
 <details>
-<summary>Sending an Invaelid Payment Amount</summary>
+<summary>Sending an Invalid Payment Amount</summary>
 
 You can test out what happens when an invalid payment amount is made.
 

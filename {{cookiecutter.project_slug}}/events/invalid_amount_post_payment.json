@@ -1,5 +1,5 @@
 {
-  "body": "eyJwYXltZW50X2RhdGUiOiAiMjEwMC0wNS0wMSIsICJhbW91bnQiOiAxMDAwLCAidXNlcl9pZCI6ICJicmlhbiJ9",
+  "body": "eyJwYXltZW50X2RhdGUiOiAiMjEwMC0wNS0wMSIsICJhbW91bnQiOiAtMSwgInVzZXJfaWQiOiAiYnJpYW4ifQ==",
   "resource": "/payment",
   "path": "/payment",
   "httpMethod": "POST",
