@@ -20,10 +20,6 @@ AWS SAM has the ability to simulate the AWS Lambda service locally. You can pass
 
 It's important to test out _valid_ and _invalid_ inputs.
 
-#### Testing Valid Inputs
-
-You can test how your `GetBalanceFunction` and `PostPaymentFunction` functions respond to valid inputs.
-
 Validation can occur in two places in our serverless application:
 
 * API Gateway
@@ -33,6 +29,10 @@ Validation can occur in two places in our serverless application:
 In this example, validation occurs within the `PostPaymentFunction` and makes use of the [Parser (Pydantic) utility](https://awslabs.github.io/aws-lambda-powertools-python/latest/utilities/parser/).
 
 Consider the flexibility you need when performing validation. In general it is better to have API Gateway perform validation. In this manner, you will reduce unnecessary calls to your backend services. However, you are a bit limited in the validations that can be performed. Please refer to [Amazon API Gateway documentation](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-method-request-validation.html) for more detail.
+
+#### Testing Valid Inputs
+
+You can test how your `GetBalanceFunction` and `PostPaymentFunction` functions respond to valid inputs.
 
 <details>
 <summary>Sending a Valid Balance Request</summary>
