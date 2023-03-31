@@ -96,22 +96,47 @@ REPORT RequestId: 964e8d69-edd9-4faf-ad78-f6cb95a6a64d  Init Duration: 0.24 ms  
 
 Equally important, you can test how your `GetBalanceFunction` and `PostPaymentFunction` functions respond to invalid inputs.
 
+In our example, an invalid `GetBalanceFunction` is one where the `user_id` parameter is missing. A balance request requires a `user_id` parameter in the URL (eg https://your-api/balance/some-user-id).
+
+The `PostPayment` function performs several validation steps of the request body:
+
+* The `user_id`, `amount`, and `payment_date` are required
+
+* The `amount` must be greater than or equal to 1 and less than or equal to 10000
+
+* The `payment_date` must be equal to or later than today, using the format `YYYY-MM-DD`
+
 
 <details>
 <summary>Sending an Invalid Balance Request</summary>
 
-A balance request requires a `user_id` in the URL (eg https://your-api/balance/some-user-id).
-
 ```bash
 make invoke-invalid-get-balance
+```
+
+```bash
+Invoking app.lambda_handler (python3.9)
+arn:aws:lambda:us-east-1:017000801446:layer:AWSLambdaPowertoolsPythonV2:24 is already cached. Skipping download
+Local image is up-to-date
+Using local image: samcli/lambda-python:3.9-x86_64-4bf855b6d375a4352b7378715.
+
+Mounting /Users/brian/code/pycon-scratch/pycon-showoff/.aws-sam/build/GetBalanceFunction as /var/task:ro,delegated inside runtime container
+START RequestId: 539d3b6a-4a8f-4669-84fe-4bcf4fe8f559 Version: $LATEST
+{"level":"INFO","location":"decorate:440","message":{"body":"","resource":"/balance","path":"/balance","httpMethod":"GET","isBase64Encoded":true,"headers":{"Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8","Accept-Encoding":"gzip, deflate, sdch","Accept-Language":"en-US,en;q=0.8","Cache-Control":"max-age=0","CloudFront-Forwarded-Proto":"https","CloudFront-Is-Desktop-Viewer":"true","CloudFront-Is-Mobile-Viewer":"false","CloudFront-Is-SmartTV-Viewer":"false","CloudFront-Is-Tablet-Viewer":"false","CloudFront-Viewer-Country":"US","Host":"1234567890.execute-api.us-east-1.amazonaws.com","Upgrade-Insecure-Requests":"1","User-Agent":"Custom User Agent String","Via":"1.1 08f323deadbeefa7af34d5feb414ce27.cloudfront.net (CloudFront)","X-Amz-Cf-Id":"cDehVQoZnx43VYQb9j2-nvCh-9z396Uhbp027Y2JvkCPNLmGJHqlaA==","X-Forwarded-For":"127.0.0.1, 127.0.0.2","X-Forwarded-Port":"443","X-Forwarded-Proto":"https"},"multiValueHeaders":{"Accept":["text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"],"Accept-Encoding":["gzip, deflate, sdch"],"Accept-Language":["en-US,en;q=0.8"],"Cache-Control":["max-age=0"],"CloudFront-Forwarded-Proto":["https"],"CloudFront-Is-Desktop-Viewer":["true"],"CloudFront-Is-Mobile-Viewer":["false"],"CloudFront-Is-SmartTV-Viewer":["false"],"CloudFront-Is-Tablet-Viewer":["false"],"CloudFront-Viewer-Country":["US"],"Host":["0123456789.execute-api.us-east-1.amazonaws.com"],"Upgrade-Insecure-Requests":["1"],"User-Agent":["Custom User Agent String"],"Via":["1.1 08f323deadbeefa7af34d5feb414ce27.cloudfront.net (CloudFront)"],"X-Amz-Cf-Id":["cDehVQoZnx43VYQb9j2-nvCh-9z396Uhbp027Y2JvkCPNLmGJHqlaA=="],"X-Forwarded-For":["127.0.0.1, 127.0.0.2"],"X-Forwarded-Port":["443"],"X-Forwarded-Proto":["https"]},"requestContext":{"accountId":"123456789012","resourceId":"123456","stage":"v1","requestId":"c6af9ac6-7b61-11e6-9a41-93e8deadbeef","requestTime":"09/Apr/2015:12:34:56 +0000","requestTimeEpoch":1428582896000,"identity":{"cognitoIdentityPoolId":null,"accountId":null,"cognitoIdentityId":null,"caller":null,"accessKey":null,"sourceIp":"127.0.0.1","cognitoAuthenticationType":null,"cognitoAuthenticationProvider":null,"userArn":null,"userAgent":"Custom User Agent String","user":null},"path":"/v1/balance","resourcePath":"/balance","httpMethod":"GET","apiId":"1234567890","protocol":"HTTP/1.1"}},"timestamp":"2023-03-31 10:17:16,083+0000","service":"get_balance","sampling_rate":"0.1","cold_start":true,"function_name":"GetBalanceFunction","function_memory_size":"256","function_arn":"arn:aws:lambda:us-east-1:012345678912:function:GetBalanceFunction","function_request_id":"539d3b6a-4a8f-4669-84fe-4bcf4fe8f559","correlation_id":"c6af9ac6-7b61-11e6-9a41-93e8deadbeef"}
+[WARNING]       2023-03-31T10:17:16.083Z        539d3b6a-4a8f-4669-84fe-4bcf4fe8f559    Subsegment ## lambda_handler discarded due to Lambda worker still initializing
+[WARNING]       2023-03-31T10:17:16.083Z        539d3b6a-4a8f-4669-84fe-4bcf4fe8f559    Subsegment ## app.handle_not_found_errors discarded due to Lambda worker still initializing
+{"level":"INFO","location":"handle_not_found_errors:40","message":"Not found route: /balance","timestamp":"2023-03-31 10:17:16,084+0000","service":"get_balance","sampling_rate":"0.1","cold_start":true,"function_name":"GetBalanceFunction","function_memory_size":"256","function_arn":"arn:aws:lambda:us-east-1:012345678912:function:GetBalanceFunction","function_request_id":"539d3b6a-4a8f-4669-84fe-4bcf4fe8f559","correlation_id":"c6af9ac6-7b61-11e6-9a41-93e8deadbeef"}
+[WARNING]       2023-03-31T10:17:16.084Z        539d3b6a-4a8f-4669-84fe-4bcf4fe8f559    No subsegment to end.
+[WARNING]       2023-03-31T10:17:16.085Z        539d3b6a-4a8f-4669-84fe-4bcf4fe8f559    No subsegment to end.
+END RequestId: 539d3b6a-4a8f-4669-84fe-4bcf4fe8f559
+REPORT RequestId: 539d3b6a-4a8f-4669-84fe-4bcf4fe8f559  Init Duration: 0.10 ms  Duration: 490.39 ms     Billed Duration: 491 ms Memory Size: 256 MB     Max Memory Used: 256 MB
+{"statusCode": 418, "body": "I'm a teapot!", "isBase64Encoded": false, "multiValueHeaders": {"Content-Type": ["text/plain"]}}
 ```
 
 </details>
 
 <details>
 <summary>Sending an Invalid Payment Amount</summary>
-
-You can test out what happens when an invalid payment amount is made.
 
 ```bash
 make invoke-invalid-amount-post-payment
@@ -141,8 +166,6 @@ REPORT RequestId: 301b566f-f989-43e3-89df-464d39709f95  Init Duration: 0.55 ms  
 <details>
 <summary>Sending an Invalid Payment Date</summary>
 
-The payment date must be later than or equal to today's date.
-
 ```bash
 make invoke-invalid-date-post-payment
 ```
@@ -170,8 +193,6 @@ REPORT RequestId: 975e4ca7-6391-4581-9c3c-21d09380fda7  Init Duration: 0.74 ms  
 
 <details>
 <summary>Sending a Payment Missing a user_id</summary>
-
-A `user_id` is required in the body of any payment requests.
 
 ```bash
 make invoke-missing-userid-post-payment
@@ -224,4 +245,4 @@ Once the server starts, you can use any HTTP client (eg curl, Postman) to intera
 
 ## Next Steps
 
-Now that you have a sense of how to interact with your API locally, you will [deploy your application to AWS]().
+Now that you have a sense of how to interact with your API locally, you will [deploy your application to AWS](./README-DEPLOYING.md).

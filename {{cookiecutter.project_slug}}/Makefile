@@ -29,13 +29,13 @@ shell:
 	@$(PIPENV) shell
 
 build: ##=> Same as package except that we don't create a ZIP
-	sam build --use-container --region us-east-2 --profile brian-admin
+	sam build --use-container --region {{ cookiecutter.aws_region }} --profile {{ cookiecutter.aws_iam_profile }}
 
 deploy.guided: ##=> Guided deploy that is typically run for the first time only
-	sam deploy --guided --region us-east-2 --profile brian-admin
+	sam deploy --guided --region {{ cookiecutter.aws_region }} --profile {{ cookiecutter.aws_iam_profile }}
 
 deploy: ##=> Deploy app using previously saved SAM CLI configuration
-	sam deploy --region us-east-2 --profile brian-admin
+	sam deploy --region {{ cookiecutter.aws_region }} --profile {{ cookiecutter.aws_iam_profile }}
 
 invoke-valid-get-balance: ##=> Run SAM Local function with a given event payload
 	@sam local invoke GetBalanceFunction --event events/valid_get_balance.json

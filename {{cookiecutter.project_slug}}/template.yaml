@@ -43,19 +43,18 @@ Globals:
 
 Resources:
   ApiCloudWatchRole:
-      Type: 'AWS::IAM::Role'
-      Properties:
-          AssumeRolePolicyDocument:
-              Version: 2012-10-17
-              Statement:
-                  - Effect: Allow
-                    Principal:
-                      Service:
-                        - apigateway.amazonaws.com
-                    Action: 'sts:AssumeRole'
-              ManagedPolicyArns:
-                  - >-
-                    arn:aws:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs
+      Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - apigateway.amazonaws.com
+          Action: sts:AssumeRole
+      ManagedPolicyArns:
+      - arn:aws:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs
 
   Account:
       Type: 'AWS::ApiGateway::Account'
