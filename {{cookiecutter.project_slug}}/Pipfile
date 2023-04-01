@@ -3,15 +3,14 @@ url = "https://pypi.python.org/simple"
 verify_ssl = true
 name = "pypi"
 
-
 [packages]
-"aws-lambda-powertools[tracer]" = "*"
 
 [dev-packages]
 boto3 = "*"
 boto3-stubs = "*"
 pytest = "*"
 pytest-cov = "*"
+pydantic = "*"
 
 [requires]
 python_version = "3.9"
