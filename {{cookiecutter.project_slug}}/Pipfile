@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 
 [dev-packages]
+"aws-lambda-powertools[all]" = "*"
 boto3 = "*"
 boto3-stubs = "*"
 pytest = "*"

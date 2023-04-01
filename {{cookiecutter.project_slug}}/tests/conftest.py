@@ -34,7 +34,25 @@ def invalid_get_balance_event():
 
 
 @pytest.fixture()
-def apigw_hello_name_event():
+def valid_post_payment_event():
     """Generates API GW Event"""
-    with open("./events/hello_name.json", "r") as fp:
+    with open("./events/valid_post_payment.json", "r") as fp:
+        return json.load(fp)
+
+@pytest.fixture()
+def invalid_amount_post_payment_event():
+    """Generates API GW Event"""
+    with open("./events/invalid_amount_post_payment.json", "r") as fp:
+        return json.load(fp)
+
+@pytest.fixture()
+def invalid_date_post_payment_event():
+    """Generates API GW Event"""
+    with open("./events/invalid_date_post_payment.json", "r") as fp:
+        return json.load(fp)
+
+@pytest.fixture()
+def invalid_missing_userid_post_payment_event():
+    """Generates API GW Event"""
+    with open("./events/invalid_missing_userid_post_payment.json", "r") as fp:
         return json.load(fp)
