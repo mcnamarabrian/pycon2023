@@ -62,7 +62,7 @@ run: ##=> Run SAM Local API GW and can optionally run new containers connected t
 
 .PHONY: test
 test:
-	POWERTOOLS_METRICS_NAMESPACE="MyServerlessApplication" $(PIPENV) run python -m pytest --cov . --cov-report term-missing --cov-fail-under $(CODE_COVERAGE) tests/ -vv
+	PYTHONPATH="${PYTHONPATH}:./src/post_payment/" POWERTOOLS_METRICS_NAMESPACE="MyServerlessApplication" $(PIPENV) run python -m pytest --cov . --cov-report term-missing --cov-fail-under $(CODE_COVERAGE) tests/ -vv
 
 hurry: ##=> Run full workflow for the first time
 	$(MAKE) install
