@@ -4,11 +4,13 @@ The AWS SAM CLI allows developers to build and test their applications locally w
 
 ## Building the API
 
-In order to run the application locally, you will need to first `build` it. The [Makefile](./Makefile) has a target that allows for a clean building of artifacts.
+In order to run the application, you will need to first `build` it. The [Makefile](./Makefile) has a target that allows for a clean building of artifacts.
 
 ```bash
 make all
 ```
+
+In this step, the AWS SAM CLI will processes your AWS SAM template file, application code, and any applicable language-specific files and dependencies.
 
 ## Invoking the API Locally
 
@@ -16,7 +18,7 @@ There are several mechanisms that can be used to test out functionality. Let's e
 
 ### Passing in Events to Your Serverless Functions
 
-AWS SAM has the ability to simulate the AWS Lambda service locally. You can pass in events and inspect what your function will do. Perhaps even more convenient, the AWS SAM CLI allows developers to generate events that mimic what acutal AWS services generate. 
+AWS SAM has the ability to simulate the AWS Lambda service locally. You can pass in events and inspect what your function will do. Perhaps even more convenient, the AWS SAM CLI has the ability to create sample events from different sources. Please review the [AWS Serverless Application Model Developer Guide](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-cli-command-reference-sam-local-generate-event.html) for more information.
 
 It's important to test out _valid_ and _invalid_ inputs.
 
@@ -37,7 +39,7 @@ You can test how your `GetBalanceFunction` and `PostPaymentFunction` functions r
 <details>
 <summary>Sending a Valid Balance Request</summary>
 
-You can test out what happens when a valid balance request is made.
+You can test out what happens when a valid balance request is made. The following `make` target uses input from [events/valid_get_balance.json](./events/valid_get_balance.json) to simulate an API Gateway request.
 
 ```bash
 make invoke-valid-get-balance
@@ -66,7 +68,7 @@ REPORT RequestId: ef04b2a9-2a57-4b32-ae52-1b2474472199  Init Duration: 0.18 ms  
 <details>
 <summary>Sending a Valid Payment Request</summary>
 
-You can test what happens when a valid payment is made. A valid payment includes a `user_id`, `payment_date` greater than or equal to today, and an `amount` between 1 and 10000.
+You can test what happens when a valid payment is made. A valid payment includes a `user_id`, `payment_date` that is not earlier than today, and an `amount` between 1 and 10000.  The following `make` target uses input from [events/valid_post_payment.json](./events/valid_post_payment.json) to simulate an API Gateway request.
 
 ```bash
 make invoke-valid-post-payment 
@@ -110,6 +112,8 @@ The `PostPayment` function performs several validation steps of the request body
 <details>
 <summary>Sending an Invalid Balance Request</summary>
 
+You can test what happens when an invalid balance request is made. The following `make` target uses input from [events/invalid_get_balance.json](./events/invalid_get_balance.json) to simulate an API Gateway request.
+
 ```bash
 make invoke-invalid-get-balance
 ```
@@ -137,6 +141,8 @@ REPORT RequestId: 539d3b6a-4a8f-4669-84fe-4bcf4fe8f559  Init Duration: 0.10 ms  
 
 <details>
 <summary>Sending an Invalid Payment Amount</summary>
+
+You can test what happens when an invalid payment request is made. The `amount` is -1. The following `make` target uses input from [events/invalid_amount_post_payment.json](./events/invalid_amount_post_payment.json) to simulate an API Gateway request.
 
 ```bash
 make invoke-invalid-amount-post-payment
@@ -166,6 +172,8 @@ REPORT RequestId: 301b566f-f989-43e3-89df-464d39709f95  Init Duration: 0.55 ms  
 <details>
 <summary>Sending an Invalid Payment Date</summary>
 
+You can test what happens when an invalid payment request is made. The `payment_date` is 1970-01-01. The following `make` target uses input from [events/invalid_date_post_payment.json](./events/invalid_date_post_payment.json) to simulate an API Gateway request.
+
 ```bash
 make invoke-invalid-date-post-payment
 ```
@@ -194,6 +202,8 @@ REPORT RequestId: 975e4ca7-6391-4581-9c3c-21d09380fda7  Init Duration: 0.74 ms  
 <details>
 <summary>Sending a Payment Missing a user_id</summary>
 
+You can test what happens when an invalid payment request is made. The `user_id` is missing from the request body. The following `make` target uses input from [events/invalid_missing_userid_post_payment.json](./events/invalid_missing_userid_post_payment.json) to simulate an API Gateway request.
+
 ```bash
 make invoke-missing-userid-post-payment
 ```
@@ -220,7 +230,7 @@ REPORT RequestId: 844ea41c-ff0d-4a66-a3af-350dfc5d884a  Init Duration: 0.25 ms  
 
 ### Running Your REST API Using Docker
 
-The SAM CLI can create a local HTTP server to run your application. 
+The SAM CLI can create a local HTTP server to run your application using Docker. 
 
 ```bash
 make run
@@ -245,4 +255,4 @@ Once the server starts, you can use any HTTP client (eg curl, Postman) to intera
 
 ## Next Steps
 
-Now that you have a sense of how to interact with your API locally, you will [deploy your application to AWS](./README-DEPLOYING.md).
+Now that you have a sense of how to interact with your API locally, you will [test your application](./README-TESTING.md).
