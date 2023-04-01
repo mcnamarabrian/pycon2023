@@ -1,4 +1,4 @@
-{{ cookiecutter.project_name }}
+# {{ cookiecutter.project_name }}
 
 This project contains a [AWS serverless application](https://aws.amazon.com/serverless) - a representative Application Programming Interface (API) that allows users to get balance information and post payments. It includes best practices for developing, deploying, and observing serverless applications.
 
