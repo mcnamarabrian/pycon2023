@@ -130,6 +130,7 @@ Resources:
                   Properties:
                       Path: /balance/{user_id}
                       Method: GET
+                      RestApiId: !Ref CardApi
           Environment:
               Variables:
                   POWERTOOLS_SERVICE_NAME: get_balance
