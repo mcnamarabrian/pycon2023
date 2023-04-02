@@ -1,19 +1,19 @@
-{{ cookiecutter.project_name }}
+# Testing
 
-This project contains a [AWS serverless application](https://aws.amazon.com/serverless) - a representative Application Programming Interface (API) that allows users to get balance information and post payments. It includes best practices for developing, deploying, and observing serverless applications.
+Testing helps validate assumptions you make about the way your application should behave. Suffice it to say - you should test your code.
 
-## Dependencies
+The code can be tested using the following code:
 
-The sample application uses the Serverless Application Model to build and deploy. requires the following dependencies:
+```bash
+make test
+```
 
-* [AWS SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html)
+**NOTE:** If you haven't run `pipenv install --dev` you're going to get some errors.
 
-* [Python3.9](https://www.python.org/downloads/release/python-390/)
+## What Is Being Tested?
 
-* [Pipenv](https://pipenv.pypa.io/en/latest/)
+The code in the [tests](./tests/) directory is set up to allow you to run unit tests. The code makes use of the events in the [events](./events/) directory to make sure you get what you expect. In this case, you're testing both the _valid_ and _invalid_ requests to our **GetBalanceFunction** and **PostPaymentFunction** to make sure the code works as expected.
 
-* Optional: [Docker Desktop](https://www.docker.com/products/docker-desktop/) if deploying and testing locally
+## What's Next
 
-## Next Steps
-
-Now that you have your project dependencies installed, you can [build and interact with the API locally](./README-INTERACTING-LOCALLY.md).
+Now that you've [interacted with your code locally](./README-INTERACTING-LOCALLY.md) and tested it, you'll [deploy your code](./README-DEPLOYING.md) to the AWS cloud.
