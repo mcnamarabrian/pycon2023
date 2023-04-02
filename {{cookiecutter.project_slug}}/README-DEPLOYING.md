@@ -1,217 +1,224 @@
-# Interacting with the API Locally
+# Deploying the Serverless Application
 
-The AWS SAM CLI allows developers to build and test their applications locally without needing to deploy resources to the AWS cloud. This allows for much faster, iterative development cycles.
+You built and interacted with our serverless application locally in our [previous step](./README-INTERACTING-LOCALLY.md). You're at the point where you can deploy your API to the [Amazon Web Services (AWS)](https://aws.amazon.com) cloud.
 
 ## Building the API
 
-In order to run the application locally, you will need to first `build` it. The [Makefile](./Makefile) has a target that allows for a clean building of artifacts.
+In order to run the application, you will need to first `build` it. The [Makefile](./Makefile) has a target that allows for a clean building of artifacts.
 
 ```bash
 make all
 ```
 
-## Invoking the API Locally
+In this step, the AWS SAM CLI will processes your AWS SAM template file, application code, and any applicable language-specific files and dependencies.
 
-There are several mechanisms that can be used to test out functionality. Let's explore the simplest first.
+## Deploying the API
 
-### Passing in Events to Your Serverless Functions
+The AWS SAM CLI has a `deploy` subcommand. It's been wrapped in a `make` task. Use the following command to deploy your serverless application the first time. The AWS SAM CLI will prompt you for the necessary inputs.
 
-AWS SAM has the ability to simulate the AWS Lambda service locally. You can pass in events and inspect what your function will do. Perhaps even more convenient, the AWS SAM CLI allows developers to generate events that mimic what acutal AWS services generate. 
-
-It's important to test out _valid_ and _invalid_ inputs.
-
-#### Testing Valid Inputs
-
-You can test how your `GetBalanceFunction` and `PostPaymentFunction` functions respond to valid inputs.
+```bash
+make deploy.guided
+```
 
 <details>
-<summary>Sending a Valid Balance Request</summary>
+<summary>Sample Output from make deploy.guided</summary>
 
-You can test out what happens when a valid balance request is made.
-
-```bash
-make invoke-get-balance
-```
+The following output is representative output of deploying your Python API.
 
 ```bash
-Invoking app.lambda_handler (python3.9)
-arn:aws:lambda:us-east-1:017000801446:layer:AWSLambdaPowertoolsPythonV2:24 is already cached. Skipping download
-Local image is up-to-date
-Using local image: samcli/lambda-python:3.9-x86_64-4bf855b6d375a4352b7378715.
+% make deploy.guided
+sam deploy --guided --region us-east-1 --profile brian-admin
 
-Mounting /Users/brian/code/pycon-scratch/pycon-with-input-validation/.aws-sam/build/GetBalanceFunction as /var/task:ro,delegated inside runtime container
-START RequestId: ef04b2a9-2a57-4b32-ae52-1b2474472199 Version: $LATEST
-{"level":"INFO","location":"decorate:440","message":{"body":"","resource":"/balance","path":"/balance/sample-user","httpMethod":"GET","isBase64Encoded":true,"headers":{"Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8","Accept-Encoding":"gzip, deflate, sdch","Accept-Language":"en-US,en;q=0.8","Cache-Control":"max-age=0","CloudFront-Forwarded-Proto":"https","CloudFront-Is-Desktop-Viewer":"true","CloudFront-Is-Mobile-Viewer":"false","CloudFront-Is-SmartTV-Viewer":"false","CloudFront-Is-Tablet-Viewer":"false","CloudFront-Viewer-Country":"US","Host":"1234567890.execute-api.us-east-1.amazonaws.com","Upgrade-Insecure-Requests":"1","User-Agent":"Custom User Agent String","Via":"1.1 08f323deadbeefa7af34d5feb414ce27.cloudfront.net (CloudFront)","X-Amz-Cf-Id":"cDehVQoZnx43VYQb9j2-nvCh-9z396Uhbp027Y2JvkCPNLmGJHqlaA==","X-Forwarded-For":"127.0.0.1, 127.0.0.2","X-Forwarded-Port":"443","X-Forwarded-Proto":"https"},"multiValueHeaders":{"Accept":["text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"],"Accept-Encoding":["gzip, deflate, sdch"],"Accept-Language":["en-US,en;q=0.8"],"Cache-Control":["max-age=0"],"CloudFront-Forwarded-Proto":["https"],"CloudFront-Is-Desktop-Viewer":["true"],"CloudFront-Is-Mobile-Viewer":["false"],"CloudFront-Is-SmartTV-Viewer":["false"],"CloudFront-Is-Tablet-Viewer":["false"],"CloudFront-Viewer-Country":["US"],"Host":["0123456789.execute-api.us-east-1.amazonaws.com"],"Upgrade-Insecure-Requests":["1"],"User-Agent":["Custom User Agent String"],"Via":["1.1 08f323deadbeefa7af34d5feb414ce27.cloudfront.net (CloudFront)"],"X-Amz-Cf-Id":["cDehVQoZnx43VYQb9j2-nvCh-9z396Uhbp027Y2JvkCPNLmGJHqlaA=="],"X-Forwarded-For":["127.0.0.1, 127.0.0.2"],"X-Forwarded-Port":["443"],"X-Forwarded-Proto":["https"]},"requestContext":{"accountId":"123456789012","resourceId":"123456","stage":"v1","requestId":"c6af9ac6-7b61-11e6-9a41-93e8deadbeef","requestTime":"09/Apr/2015:12:34:56 +0000","requestTimeEpoch":1428582896000,"identity":{"cognitoIdentityPoolId":null,"accountId":null,"cognitoIdentityId":null,"caller":null,"accessKey":null,"sourceIp":"127.0.0.1","cognitoAuthenticationType":null,"cognitoAuthenticationProvider":null,"userArn":null,"userAgent":"Custom User Agent String","user":null},"path":"/v1/balance/sample-user","resourcePath":"/balance","httpMethod":"GET","apiId":"1234567890","protocol":"HTTP/1.1"}},"timestamp":"2023-03-30 10:58:12,052+0000","service":"get_balance","sampling_rate":"0.1","cold_start":true,"function_name":"GetBalanceFunction","function_memory_size":"256","function_arn":"arn:aws:lambda:us-east-1:012345678912:function:GetBalanceFunction","function_request_id":"ef04b2a9-2a57-4b32-ae52-1b2474472199","correlation_id":"c6af9ac6-7b61-11e6-9a41-93e8deadbeef"}
-[WARNING]       2023-03-30T10:58:12.053Z        ef04b2a9-2a57-4b32-ae52-1b2474472199    Subsegment ## lambda_handler discarded due to Lambda worker still initializing
-[WARNING]       2023-03-30T10:58:12.053Z        ef04b2a9-2a57-4b32-ae52-1b2474472199    Subsegment ## app.get_balance discarded due to Lambda worker still initializing
-[WARNING]       2023-03-30T10:58:12.054Z        ef04b2a9-2a57-4b32-ae52-1b2474472199    No subsegment to end.
-{"level":"INFO","location":"get_balance:24","message":{"user_id":"sample-user","balance":1893,"timestamp":"2023-03-30T10:58:12.053935"},"timestamp":"2023-03-30 10:58:12,053+0000","service":"get_balance","sampling_rate":"0.1","cold_start":true,"function_name":"GetBalanceFunction","function_memory_size":"256","function_arn":"arn:aws:lambda:us-east-1:012345678912:function:GetBalanceFunction","function_request_id":"ef04b2a9-2a57-4b32-ae52-1b2474472199","correlation_id":"c6af9ac6-7b61-11e6-9a41-93e8deadbeef"}
-[WARNING]       2023-03-30T10:58:12.054Z        ef04b2a9-2a57-4b32-ae52-1b2474472199    No subsegment to end.
-END RequestId: ef04b2a9-2a57-4b32-ae52-1b2474472199
-REPORT RequestId: ef04b2a9-2a57-4b32-ae52-1b2474472199  Init Duration: 0.18 ms  Duration: 684.58 ms     Billed Duration: 685 ms Memory Size: 256 MB     Max Memory Used: 256 MB
-{"statusCode": 200, "body": "{\"user_id\":\"sample-user\",\"balance\":1893,\"timestamp\":\"2023-03-30T10:58:12.053935\"}", "isBase64Encoded": false, "multiValueHeaders": {"Content-Type": ["application/json"]}}%       
+Configuring SAM deploy
+======================
+
+        Looking for config file [samconfig.toml] :  Not found
+
+        Setting default arguments for 'sam deploy'
+        =========================================
+        Stack Name [sam-app]: pycon-us-2023
+        AWS Region [us-east-1]: 
+        #Shows you resources changes to be deployed and require a 'Y' to initiate deploy
+        Confirm changes before deploy [y/N]: 
+        #SAM needs permission to be able to create roles to connect to the resources in your template
+        Allow SAM CLI IAM role creation [Y/n]: 
+        #Preserves the state of previously provisioned resources when an operation fails
+        Disable rollback [y/N]: 
+        GetBalanceFunction may not have authorization defined, Is this okay? [y/N]: y
+        PostPaymentFunction may not have authorization defined, Is this okay? [y/N]: y
+        Save arguments to configuration file [Y/n]: 
+        SAM configuration file [samconfig.toml]: 
+        SAM configuration environment [default]: 
+
+        Looking for resources needed for deployment:
+
+        Managed S3 bucket: aws-sam-cli-managed-default-samclisourcebucket-1n87uhj5iy5vy
+        A different default S3 bucket can be set in samconfig.toml
+
+        Saved arguments to config file
+        Running 'sam deploy' for future deployments will use the parameters saved above.
+        The above parameters can be changed by modifying samconfig.toml
+        Learn more about samconfig.toml syntax at 
+        https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-config.html
+
+        Uploading to pycon-us-2023/c34f8217a8b08737c0c0cbafcd6426c4  934 / 934  (100.00%)
+        Uploading to pycon-us-2023/917744d7f239fb1e48855d01930d4810  1451 / 1451  (100.00%)
+
+        Deploying with following values
+        ===============================
+        Stack name                   : pycon-us-2023
+        Region                       : us-east-1
+        Confirm changeset            : False
+        Disable rollback             : False
+        Deployment s3 bucket         : aws-sam-cli-managed-default-samclisourcebucket-1n87uhj5iy5vy
+        Capabilities                 : ["CAPABILITY_IAM"]
+        Parameter overrides          : {}
+        Signing Profiles             : {}
+
+Initiating deployment
+=====================
+
+        Uploading to pycon-us-2023/162bd43c56881d9ea4226d301ec2546d.template  6219 / 6219  (100.00%)
+
+
+Waiting for changeset to be created..
+
+CloudFormation stack changeset
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+Operation                              LogicalResourceId                      ResourceType                           Replacement                          
+---------------------------------------------------------------------------------------------------------------------------------------------------------
++ Add                                  Account                                AWS::ApiGateway::Account               N/A                                  
++ Add                                  ApiCloudWatchRole                      AWS::IAM::Role                         N/A                                  
++ Add                                  CardApiDeployment753f91cdd6            AWS::ApiGateway::Deployment            N/A                                  
++ Add                                  CardApiLogGroup                        AWS::Logs::LogGroup                    N/A                                  
++ Add                                  CardApiv1Stage                         AWS::ApiGateway::Stage                 N/A                                  
++ Add                                  CardApi                                AWS::ApiGateway::RestApi               N/A                                  
++ Add                                  GetBalanceFunctionGetBalancePermissi   AWS::Lambda::Permission                N/A                                  
+                                       onv1                                                                                                               
++ Add                                  GetBalanceFunctionLogGroup             AWS::Logs::LogGroup                    N/A                                  
++ Add                                  GetBalanceFunctionRole                 AWS::IAM::Role                         N/A                                  
++ Add                                  GetBalanceFunction                     AWS::Lambda::Function                  N/A                                  
++ Add                                  PostPaymentFunctionGetBalancePermiss   AWS::Lambda::Permission                N/A                                  
+                                       ionv1                                                                                                              
++ Add                                  PostPaymentFunctionLogGroup            AWS::Logs::LogGroup                    N/A                                  
++ Add                                  PostPaymentFunctionRole                AWS::IAM::Role                         N/A                                  
++ Add                                  PostPaymentFunction                    AWS::Lambda::Function                  N/A                                  
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Changeset created successfully. arn:aws:cloudformation:us-east-1:408023262302:changeSet/samcli-deploy1680440406/a4bbf0ac-c282-4d7e-ba16-a153fba839b6
+
+
+2023-04-02 09:00:18 - Waiting for stack create/update to complete
+
+CloudFormation events from stack operations (refresh every 0.5 seconds)
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+ResourceStatus                         ResourceType                           LogicalResourceId                      ResourceStatusReason                 
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+CREATE_IN_PROGRESS                     AWS::IAM::Role                         PostPaymentFunctionRole                -                                    
+CREATE_IN_PROGRESS                     AWS::IAM::Role                         ApiCloudWatchRole                      -                                    
+CREATE_IN_PROGRESS                     AWS::IAM::Role                         GetBalanceFunctionRole                 -                                    
+CREATE_IN_PROGRESS                     AWS::IAM::Role                         ApiCloudWatchRole                      Resource creation Initiated          
+CREATE_IN_PROGRESS                     AWS::IAM::Role                         GetBalanceFunctionRole                 Resource creation Initiated          
+CREATE_IN_PROGRESS                     AWS::IAM::Role                         PostPaymentFunctionRole                Resource creation Initiated          
+CREATE_COMPLETE                        AWS::IAM::Role                         ApiCloudWatchRole                      -                                    
+CREATE_COMPLETE                        AWS::IAM::Role                         GetBalanceFunctionRole                 -                                    
+CREATE_COMPLETE                        AWS::IAM::Role                         PostPaymentFunctionRole                -                                    
+CREATE_IN_PROGRESS                     AWS::ApiGateway::Account               Account                                -                                    
+CREATE_IN_PROGRESS                     AWS::Lambda::Function                  GetBalanceFunction                     -                                    
+CREATE_IN_PROGRESS                     AWS::Lambda::Function                  PostPaymentFunction                    -                                    
+CREATE_IN_PROGRESS                     AWS::ApiGateway::Account               Account                                Resource creation Initiated          
+CREATE_COMPLETE                        AWS::ApiGateway::Account               Account                                -                                    
+CREATE_IN_PROGRESS                     AWS::Lambda::Function                  GetBalanceFunction                     Resource creation Initiated          
+CREATE_IN_PROGRESS                     AWS::Lambda::Function                  PostPaymentFunction                    Resource creation Initiated          
+CREATE_COMPLETE                        AWS::Lambda::Function                  GetBalanceFunction                     -                                    
+CREATE_IN_PROGRESS                     AWS::Logs::LogGroup                    GetBalanceFunctionLogGroup             -                                    
+CREATE_IN_PROGRESS                     AWS::Logs::LogGroup                    GetBalanceFunctionLogGroup             Resource creation Initiated          
+CREATE_COMPLETE                        AWS::Logs::LogGroup                    GetBalanceFunctionLogGroup             -                                    
+CREATE_COMPLETE                        AWS::Lambda::Function                  PostPaymentFunction                    -                                    
+CREATE_IN_PROGRESS                     AWS::Logs::LogGroup                    PostPaymentFunctionLogGroup            -                                    
+CREATE_IN_PROGRESS                     AWS::ApiGateway::RestApi               CardApi                                -                                    
+CREATE_IN_PROGRESS                     AWS::Logs::LogGroup                    PostPaymentFunctionLogGroup            Resource creation Initiated          
+CREATE_COMPLETE                        AWS::Logs::LogGroup                    PostPaymentFunctionLogGroup            -                                    
+CREATE_IN_PROGRESS                     AWS::ApiGateway::RestApi               CardApi                                Resource creation Initiated          
+CREATE_COMPLETE                        AWS::ApiGateway::RestApi               CardApi                                -                                    
+CREATE_IN_PROGRESS                     AWS::ApiGateway::Deployment            CardApiDeployment753f91cdd6            -                                    
+CREATE_IN_PROGRESS                     AWS::Lambda::Permission                GetBalanceFunctionGetBalancePermissi   -                                    
+                                                                              onv1                                                                        
+CREATE_IN_PROGRESS                     AWS::Logs::LogGroup                    CardApiLogGroup                        -                                    
+CREATE_IN_PROGRESS                     AWS::Lambda::Permission                PostPaymentFunctionGetBalancePermiss   -                                    
+                                                                              ionv1                                                                       
+CREATE_IN_PROGRESS                     AWS::Lambda::Permission                GetBalanceFunctionGetBalancePermissi   Resource creation Initiated          
+                                                                              onv1                                                                        
+CREATE_IN_PROGRESS                     AWS::Lambda::Permission                PostPaymentFunctionGetBalancePermiss   Resource creation Initiated          
+                                                                              ionv1                                                                       
+CREATE_IN_PROGRESS                     AWS::Logs::LogGroup                    CardApiLogGroup                        Resource creation Initiated          
+CREATE_IN_PROGRESS                     AWS::ApiGateway::Deployment            CardApiDeployment753f91cdd6            Resource creation Initiated          
+CREATE_COMPLETE                        AWS::Logs::LogGroup                    CardApiLogGroup                        -                                    
+CREATE_COMPLETE                        AWS::ApiGateway::Deployment            CardApiDeployment753f91cdd6            -                                    
+CREATE_IN_PROGRESS                     AWS::ApiGateway::Stage                 CardApiv1Stage                         -                                    
+CREATE_IN_PROGRESS                     AWS::ApiGateway::Stage                 CardApiv1Stage                         Resource creation Initiated          
+CREATE_COMPLETE                        AWS::ApiGateway::Stage                 CardApiv1Stage                         -                                    
+CREATE_COMPLETE                        AWS::Lambda::Permission                GetBalanceFunctionGetBalancePermissi   -                                    
+                                                                              onv1                                                                        
+CREATE_COMPLETE                        AWS::Lambda::Permission                PostPaymentFunctionGetBalancePermiss   -                                    
+                                                                              ionv1                                                                       
+CREATE_COMPLETE                        AWS::CloudFormation::Stack             pycon-us-2023                          -                                    
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+CloudFormation outputs from deployed stack
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+Outputs                                                                                                                                                 
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+Key                 GetBalanceUrl                                                                                                                       
+Description         API Gateway endpoint URL for GetBalanceFunction                                                                                     
+Value               https://idio2a0qyb.execute-api.us-east-1.amazonaws.com/v1/balance/{user-id}                                                         
+
+Key                 PostPaymentUrl                                                                                                                      
+Description         API Gateway endpoint URL for PostPaymentFunction                                                                                    
+Value               https://idio2a0qyb.execute-api.us-east-1.amazonaws.com/v1/payment                                                                   
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Successfully created/updated stack - pycon-us-2023 in us-east-1
 ```
+
 </details>
 
-<details>
-<summary>Sending a Valid Payment Request</summary>
-
-You can test what happens when a valid payment is made. A valid payment includes a `user_id`, `payment_date` greater than or equal to today, and an `amount` between 1 and 10000.
+Subsequent deployments can be done using the following simplified command:
 
 ```bash
-make invoke-valid-post-payment 
+make deploy
 ```
 
-```bash
-Invoking app.lambda_handler (python3.9)
-arn:aws:lambda:us-east-1:017000801446:layer:AWSLambdaPowertoolsPythonV2:24 is already cached. Skipping download
-Local image is up-to-date
-Using local image: samcli/lambda-python:3.9-x86_64-4bf855b6d375a4352b7378715.
+The values you specified earlier will be used; they've been stored in the `samconfig.toml` file.
 
-Mounting /Users/brian/code/pycon-scratch/pycon-with-input-validation/.aws-sam/build/PostPaymentFunction as /var/task:ro,delegated inside runtime container
-START RequestId: 964e8d69-edd9-4faf-ad78-f6cb95a6a64d Version: $LATEST
-{"level":"INFO","location":"decorate:440","message":{"body":"eyJwYXltZW50X2RhdGUiOiAiMjEwMC0wNS0wMSIsICJhbW91bnQiOiAxMDAwLCAidXNlcl9pZCI6ICJicmlhbiJ9","resource":"/payment","path":"/payment","httpMethod":"POST","isBase64Encoded":true,"headers":{"Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8","Accept-Encoding":"gzip, deflate, sdch","Accept-Language":"en-US,en;q=0.8","Cache-Control":"max-age=0","CloudFront-Forwarded-Proto":"https","CloudFront-Is-Desktop-Viewer":"true","CloudFront-Is-Mobile-Viewer":"false","CloudFront-Is-SmartTV-Viewer":"false","CloudFront-Is-Tablet-Viewer":"false","CloudFront-Viewer-Country":"US","Host":"1234567890.execute-api.us-east-1.amazonaws.com","Upgrade-Insecure-Requests":"1","User-Agent":"Custom User Agent String","Via":"1.1 08f323deadbeefa7af34d5feb414ce27.cloudfront.net (CloudFront)","X-Amz-Cf-Id":"cDehVQoZnx43VYQb9j2-nvCh-9z396Uhbp027Y2JvkCPNLmGJHqlaA==","X-Forwarded-For":"127.0.0.1, 127.0.0.2","X-Forwarded-Port":"443","X-Forwarded-Proto":"https"},"multiValueHeaders":{"Accept":["text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"],"Accept-Encoding":["gzip, deflate, sdch"],"Accept-Language":["en-US,en;q=0.8"],"Cache-Control":["max-age=0"],"CloudFront-Forwarded-Proto":["https"],"CloudFront-Is-Desktop-Viewer":["true"],"CloudFront-Is-Mobile-Viewer":["false"],"CloudFront-Is-SmartTV-Viewer":["false"],"CloudFront-Is-Tablet-Viewer":["false"],"CloudFront-Viewer-Country":["US"],"Host":["0123456789.execute-api.us-east-1.amazonaws.com"],"Upgrade-Insecure-Requests":["1"],"User-Agent":["Custom User Agent String"],"Via":["1.1 08f323deadbeefa7af34d5feb414ce27.cloudfront.net (CloudFront)"],"X-Amz-Cf-Id":["cDehVQoZnx43VYQb9j2-nvCh-9z396Uhbp027Y2JvkCPNLmGJHqlaA=="],"X-Forwarded-For":["127.0.0.1, 127.0.0.2"],"X-Forwarded-Port":["443"],"X-Forwarded-Proto":["https"]},"requestContext":{"accountId":"123456789012","resourceId":"123456","stage":"v1","requestId":"c6af9ac6-7b61-11e6-9a41-93e8deadbeef","requestTime":"09/Apr/2015:12:34:56 +0000","requestTimeEpoch":1428582896000,"identity":{"cognitoIdentityPoolId":null,"accountId":null,"cognitoIdentityId":null,"caller":null,"accessKey":null,"sourceIp":"127.0.0.1","cognitoAuthenticationType":null,"cognitoAuthenticationProvider":null,"userArn":null,"userAgent":"Custom User Agent String","user":null},"path":"/v1/payment","resourcePath":"/payment","httpMethod":"POST","apiId":"1234567890","protocol":"HTTP/1.1"}},"timestamp":"2023-03-30 10:59:55,330+0000","service":"post_payment","sampling_rate":"0.1","cold_start":true,"function_name":"PostPaymentFunction","function_memory_size":"256","function_arn":"arn:aws:lambda:us-east-1:012345678912:function:PostPaymentFunction","function_request_id":"964e8d69-edd9-4faf-ad78-f6cb95a6a64d","correlation_id":"c6af9ac6-7b61-11e6-9a41-93e8deadbeef"}
-[WARNING]       2023-03-30T10:59:55.330Z        964e8d69-edd9-4faf-ad78-f6cb95a6a64d    Subsegment ## lambda_handler discarded due to Lambda worker still initializing
-[WARNING]       2023-03-30T10:59:55.331Z        964e8d69-edd9-4faf-ad78-f6cb95a6a64d    Subsegment ## app.post_payment discarded due to Lambda worker still initializing
-[WARNING]       2023-03-30T10:59:55.332Z        964e8d69-edd9-4faf-ad78-f6cb95a6a64d    No subsegment to end.
-[WARNING]       2023-03-30T10:59:55.332Z        964e8d69-edd9-4faf-ad78-f6cb95a6a64d    No subsegment to end.
-{"level":"INFO","location":"post_payment:41","message":{"user_id":"brian","amount":1000,"outcome":"success","payment_date":"2100-05-01","timestamp":"2023-03-30T10:59:55.331789"},"timestamp":"2023-03-30 10:59:55,331+0000","service":"post_payment","sampling_rate":"0.1","cold_start":true,"function_name":"PostPaymentFunction","function_memory_size":"256","function_arn":"arn:aws:lambda:us-east-1:012345678912:function:PostPaymentFunction","function_request_id":"964e8d69-edd9-4faf-ad78-f6cb95a6a64d","correlation_id":"c6af9ac6-7b61-11e6-9a41-93e8deadbeef"}
-END RequestId: 964e8d69-edd9-4faf-ad78-f6cb95a6a64d
-REPORT RequestId: 964e8d69-edd9-4faf-ad78-f6cb95a6a64d  Init Duration: 0.24 ms  Duration: 802.68 ms     Billed Duration: 803 ms Memory Size: 256 MB     Max Memory Used: 256 MB
-{"statusCode": 200, "body": "{\"user_id\":\"brian\",\"amount\":1000,\"outcome\":\"success\",\"payment_date\":\"2100-05-01\",\"timestamp\":\"2023-03-30T10:59:55.331789\"}", "isBase64Encoded": false, "multiValueHeaders": {"Content-Type": ["application/json"]}}%  
-```
-</details>
+The output of the `make deploy` task includes two URLs - one that is wired to the `GetBalanceFunction` Lambda function and one that is wired to the `PostPaymentFunction`. These URLs are real and live.
 
-#### Testing Invalid Inputs
+## Making Use of the API
 
-Equally important, you can test how your `GetBalanceFunction` and `PostPaymentFunction` functions respond to invalid inputs.
+Congratulations! You now have a functioning - if simple - Python-based API deployed to the AWS cloud!
 
+![Congrats!](https://media.giphy.com/media/10bHcDcPM925ry/giphy.gif)
 
-<details>
-<summary>Sending an Invalid Balance Request</summary>
+At this point, you can issue `GET` requests to your **GetBalanceUrl** and `POST`requests to your **PostPaymentURL**.
 
-A balance request requires a `user_id` in the URL (eg https://your-api/balance/some-user-id).
+### Get Balance
+
+You can use any HTTP client to make your requests. The example below uses `curl`.
 
 ```bash
-make invoke-invalid-get-balance
+curl -XGET https://idio2a0qyb.execute-api.us-east-1.amazonaws.com/v1/balance/brian
 ```
 
-</details>
+**NOTE:** Make use of your **GetBalanceUrl**
 
-<details>
-<summary>Sending an Invaelid Payment Amount</summary>
-
-You can test out what happens when an invalid payment amount is made.
+### Post Payment
 
 ```bash
-make invoke-invalid-amount-post-payment
-```
-
-```bash
-Invoking app.lambda_handler (python3.9)
-arn:aws:lambda:us-east-1:017000801446:layer:AWSLambdaPowertoolsPythonV2:24 is already cached. Skipping download
-Local image is up-to-date
-Using local image: samcli/lambda-python:3.9-x86_64-4bf855b6d375a4352b7378715.
-
-Mounting /Users/brian/code/pycon-scratch/pycon-with-input-validation/.aws-sam/build/PostPaymentFunction as /var/task:ro,delegated inside runtime container
-START RequestId: 301b566f-f989-43e3-89df-464d39709f95 Version: $LATEST
-{"level":"INFO","location":"decorate:440","message":{"body":"eyJwYXltZW50X2RhdGUiOiAiMjEwMC0wNS0wMSIsICJhbW91bnQiOiAtMSwgInVzZXJfaWQiOiAiYnJpYW4ifQ==","resource":"/payment","path":"/payment","httpMethod":"POST","isBase64Encoded":true,"headers":{"Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8","Accept-Encoding":"gzip, deflate, sdch","Accept-Language":"en-US,en;q=0.8","Cache-Control":"max-age=0","CloudFront-Forwarded-Proto":"https","CloudFront-Is-Desktop-Viewer":"true","CloudFront-Is-Mobile-Viewer":"false","CloudFront-Is-SmartTV-Viewer":"false","CloudFront-Is-Tablet-Viewer":"false","CloudFront-Viewer-Country":"US","Host":"1234567890.execute-api.us-east-1.amazonaws.com","Upgrade-Insecure-Requests":"1","User-Agent":"Custom User Agent String","Via":"1.1 08f323deadbeefa7af34d5feb414ce27.cloudfront.net (CloudFront)","X-Amz-Cf-Id":"cDehVQoZnx43VYQb9j2-nvCh-9z396Uhbp027Y2JvkCPNLmGJHqlaA==","X-Forwarded-For":"127.0.0.1, 127.0.0.2","X-Forwarded-Port":"443","X-Forwarded-Proto":"https"},"multiValueHeaders":{"Accept":["text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"],"Accept-Encoding":["gzip, deflate, sdch"],"Accept-Language":["en-US,en;q=0.8"],"Cache-Control":["max-age=0"],"CloudFront-Forwarded-Proto":["https"],"CloudFront-Is-Desktop-Viewer":["true"],"CloudFront-Is-Mobile-Viewer":["false"],"CloudFront-Is-SmartTV-Viewer":["false"],"CloudFront-Is-Tablet-Viewer":["false"],"CloudFront-Viewer-Country":["US"],"Host":["0123456789.execute-api.us-east-1.amazonaws.com"],"Upgrade-Insecure-Requests":["1"],"User-Agent":["Custom User Agent String"],"Via":["1.1 08f323deadbeefa7af34d5feb414ce27.cloudfront.net (CloudFront)"],"X-Amz-Cf-Id":["cDehVQoZnx43VYQb9j2-nvCh-9z396Uhbp027Y2JvkCPNLmGJHqlaA=="],"X-Forwarded-For":["127.0.0.1, 127.0.0.2"],"X-Forwarded-Port":["443"],"X-Forwarded-Proto":["https"]},"requestContext":{"accountId":"123456789012","resourceId":"123456","stage":"v1","requestId":"c6af9ac6-7b61-11e6-9a41-93e8deadbeef","requestTime":"09/Apr/2015:12:34:56 +0000","requestTimeEpoch":1428582896000,"identity":{"cognitoIdentityPoolId":null,"accountId":null,"cognitoIdentityId":null,"caller":null,"accessKey":null,"sourceIp":"127.0.0.1","cognitoAuthenticationType":null,"cognitoAuthenticationProvider":null,"userArn":null,"userAgent":"Custom User Agent String","user":null},"path":"/v1/payment","resourcePath":"/payment","httpMethod":"POST","apiId":"1234567890","protocol":"HTTP/1.1"}},"timestamp":"2023-03-30 11:02:10,515+0000","service":"post_payment","sampling_rate":"0.1","cold_start":true,"function_name":"PostPaymentFunction","function_memory_size":"256","function_arn":"arn:aws:lambda:us-east-1:012345678912:function:PostPaymentFunction","function_request_id":"301b566f-f989-43e3-89df-464d39709f95","correlation_id":"c6af9ac6-7b61-11e6-9a41-93e8deadbeef"}
-[WARNING]       2023-03-30T11:02:10.516Z        301b566f-f989-43e3-89df-464d39709f95    Subsegment ## lambda_handler discarded due to Lambda worker still initializing
-[WARNING]       2023-03-30T11:02:10.516Z        301b566f-f989-43e3-89df-464d39709f95    Subsegment ## app.post_payment discarded due to Lambda worker still initializing
-{"level":"ERROR","location":"post_payment:35","message":[{"loc":["amount"],"msg":"amount (-1) must be be between 1 and 10000","type":"value_error"}],"timestamp":"2023-03-30 11:02:10,516+0000","service":"post_payment","sampling_rate":"0.1","cold_start":true,"function_name":"PostPaymentFunction","function_memory_size":"256","function_arn":"arn:aws:lambda:us-east-1:012345678912:function:PostPaymentFunction","function_request_id":"301b566f-f989-43e3-89df-464d39709f95","correlation_id":"c6af9ac6-7b61-11e6-9a41-93e8deadbeef"}
-[WARNING]       2023-03-30T11:02:10.516Z        301b566f-f989-43e3-89df-464d39709f95    No subsegment to end.
-[WARNING]       2023-03-30T11:02:10.517Z        301b566f-f989-43e3-89df-464d39709f95    No subsegment to end.
-END RequestId: 301b566f-f989-43e3-89df-464d39709f95
-REPORT RequestId: 301b566f-f989-43e3-89df-464d39709f95  Init Duration: 0.55 ms  Duration: 541.33 ms     Billed Duration: 542 ms Memory Size: 256 MB     Max Memory Used: 256 MB
-{"statusCode": 400, "body": "{\"error\":\"Invalid payment\",\"timestamp\":\"2023-03-30T11:02:10.516466\"}", "isBase64Encoded": false, "multiValueHeaders": {"Content-Type": ["application/json"]}}%
-```
-</details>
-
-
-<details>
-<summary>Sending an Invalid Payment Date</summary>
-
-The payment date must be later than or equal to today's date.
-
-```bash
-make invoke-invalid-date-post-payment
+curl -XPOST https://idio2a0qyb.execute-api.us-east-1.amazonaws.com/v1/payment \
+-H 'Content-Type: application/json' \
+-d '{"user_id": "brian", "payment_date": "2100-05-01", "amount": 100}'
 ```
 
 
-```bash
-Invoking app.lambda_handler (python3.9)
-arn:aws:lambda:us-east-1:017000801446:layer:AWSLambdaPowertoolsPythonV2:24 is already cached. Skipping download
-Local image is up-to-date
-Using local image: samcli/lambda-python:3.9-x86_64-4bf855b6d375a4352b7378715.
-
-Mounting /Users/brian/code/pycon-scratch/pycon-with-input-validation/.aws-sam/build/PostPaymentFunction as /var/task:ro,delegated inside runtime container
-START RequestId: 975e4ca7-6391-4581-9c3c-21d09380fda7 Version: $LATEST
-{"level":"INFO","location":"decorate:440","message":{"body":"eyJwYXltZW50X2RhdGUiOiAiMTk3MC0wMS0wMSIsICJhbW91bnQiOiAxMDAwLCAidXNlcl9pZCI6ICJicmlhbiJ9","resource":"/payment","path":"/payment","httpMethod":"POST","isBase64Encoded":true,"headers":{"Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8","Accept-Encoding":"gzip, deflate, sdch","Accept-Language":"en-US,en;q=0.8","Cache-Control":"max-age=0","CloudFront-Forwarded-Proto":"https","CloudFront-Is-Desktop-Viewer":"true","CloudFront-Is-Mobile-Viewer":"false","CloudFront-Is-SmartTV-Viewer":"false","CloudFront-Is-Tablet-Viewer":"false","CloudFront-Viewer-Country":"US","Host":"1234567890.execute-api.us-east-1.amazonaws.com","Upgrade-Insecure-Requests":"1","User-Agent":"Custom User Agent String","Via":"1.1 08f323deadbeefa7af34d5feb414ce27.cloudfront.net (CloudFront)","X-Amz-Cf-Id":"cDehVQoZnx43VYQb9j2-nvCh-9z396Uhbp027Y2JvkCPNLmGJHqlaA==","X-Forwarded-For":"127.0.0.1, 127.0.0.2","X-Forwarded-Port":"443","X-Forwarded-Proto":"https"},"multiValueHeaders":{"Accept":["text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"],"Accept-Encoding":["gzip, deflate, sdch"],"Accept-Language":["en-US,en;q=0.8"],"Cache-Control":["max-age=0"],"CloudFront-Forwarded-Proto":["https"],"CloudFront-Is-Desktop-Viewer":["true"],"CloudFront-Is-Mobile-Viewer":["false"],"CloudFront-Is-SmartTV-Viewer":["false"],"CloudFront-Is-Tablet-Viewer":["false"],"CloudFront-Viewer-Country":["US"],"Host":["0123456789.execute-api.us-east-1.amazonaws.com"],"Upgrade-Insecure-Requests":["1"],"User-Agent":["Custom User Agent String"],"Via":["1.1 08f323deadbeefa7af34d5feb414ce27.cloudfront.net (CloudFront)"],"X-Amz-Cf-Id":["cDehVQoZnx43VYQb9j2-nvCh-9z396Uhbp027Y2JvkCPNLmGJHqlaA=="],"X-Forwarded-For":["127.0.0.1, 127.0.0.2"],"X-Forwarded-Port":["443"],"X-Forwarded-Proto":["https"]},"requestContext":{"accountId":"123456789012","resourceId":"123456","stage":"v1","requestId":"c6af9ac6-7b61-11e6-9a41-93e8deadbeef","requestTime":"09/Apr/2015:12:34:56 +0000","requestTimeEpoch":1428582896000,"identity":{"cognitoIdentityPoolId":null,"accountId":null,"cognitoIdentityId":null,"caller":null,"accessKey":null,"sourceIp":"127.0.0.1","cognitoAuthenticationType":null,"cognitoAuthenticationProvider":null,"userArn":null,"userAgent":"Custom User Agent String","user":null},"path":"/v1/payment","resourcePath":"/payment","httpMethod":"POST","apiId":"1234567890","protocol":"HTTP/1.1"}},"timestamp":"2023-03-30 11:02:49,262+0000","service":"post_payment","sampling_rate":"0.1","cold_start":true,"function_name":"PostPaymentFunction","function_memory_size":"256","function_arn":"arn:aws:lambda:us-east-1:012345678912:function:PostPaymentFunction","function_request_id":"975e4ca7-6391-4581-9c3c-21d09380fda7","correlation_id":"c6af9ac6-7b61-11e6-9a41-93e8deadbeef"}
-{"level":"ERROR","location":"post_payment:35","message":[{"loc":["payment_date"],"msg":"payment_date (1970-01-01) must not be earlier than today (2023-03-30)","type":"value_error"}],"timestamp":"2023-03-30 11:02:49,264+0000","service":"post_payment","sampling_rate":"0.1","cold_start":true,"function_name":"PostPaymentFunction","function_memory_size":"256","function_arn":"arn:aws:lambda:us-east-1:012345678912:function:PostPaymentFunction","function_request_id":"975e4ca7-6391-4581-9c3c-21d09380fda7","correlation_id":"c6af9ac6-7b61-11e6-9a41-93e8deadbeef"}
-[WARNING]       2023-03-30T11:02:49.262Z        975e4ca7-6391-4581-9c3c-21d09380fda7    Subsegment ## lambda_handler discarded due to Lambda worker still initializing
-[WARNING]       2023-03-30T11:02:49.263Z        975e4ca7-6391-4581-9c3c-21d09380fda7    Subsegment ## app.post_payment discarded due to Lambda worker still initializing
-[WARNING]       2023-03-30T11:02:49.264Z        975e4ca7-6391-4581-9c3c-21d09380fda7    No subsegment to end.
-[WARNING]       2023-03-30T11:02:49.264Z        975e4ca7-6391-4581-9c3c-21d09380fda7    No subsegment to end.
-{"statusCode": 400, "body": "{\"error\":\"Invalid payment\",\"timestamp\":\"2023-03-30T11:02:49.263738\"}", "isBase64Encoded": false, "multiValueHeaders": {"Content-Type": ["application/json"]}}END RequestId: 975e4ca7-6391-4581-9c3c-21d09380fda7
-REPORT RequestId: 975e4ca7-6391-4581-9c3c-21d09380fda7  Init Duration: 0.74 ms  Duration: 811.43 ms     Billed Duration: 812 ms Memory Size: 256 MB     Max Memory Used: 256 MB
-```
-</details>
-
-
-<details>
-<summary>Sending a Payment Missing a user_id</summary>
-
-A `user_id` is required in the body of any payment requests.
-
-```bash
-make invoke-missing-userid-post-payment
-```
-
-```bash
-% make invoke-missing-userid-post-payment
-Invoking app.lambda_handler (python3.9)
-arn:aws:lambda:us-east-1:017000801446:layer:AWSLambdaPowertoolsPythonV2:24 is already cached. Skipping download
-Local image is up-to-date
-Using local image: samcli/lambda-python:3.9-x86_64-4bf855b6d375a4352b7378715.
-
-Mounting /Users/brian/code/pycon-scratch/pycon-with-input-validation/.aws-sam/build/PostPaymentFunction as /var/task:ro,delegated inside runtime container
-START RequestId: 844ea41c-ff0d-4a66-a3af-350dfc5d884a Version: $LATEST
-{"level":"INFO","location":"decorate:440","message":{"body":"eyJwYXltZW50X2RhdGUiOiAiMjEwMC0wNS0wMSIsICJhbW91bnQiOiAxMDAwfQ==","resource":"/payment","path":"/payment","httpMethod":"POST","isBase64Encoded":true,"headers":{"Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8","Accept-Encoding":"gzip, deflate, sdch","Accept-Language":"en-US,en;q=0.8","Cache-Control":"max-age=0","CloudFront-Forwarded-Proto":"https","CloudFront-Is-Desktop-Viewer":"true","CloudFront-Is-Mobile-Viewer":"false","CloudFront-Is-SmartTV-Viewer":"false","CloudFront-Is-Tablet-Viewer":"false","CloudFront-Viewer-Country":"US","Host":"1234567890.execute-api.us-east-1.amazonaws.com","Upgrade-Insecure-Requests":"1","User-Agent":"Custom User Agent String","Via":"1.1 08f323deadbeefa7af34d5feb414ce27.cloudfront.net (CloudFront)","X-Amz-Cf-Id":"cDehVQoZnx43VYQb9j2-nvCh-9z396Uhbp027Y2JvkCPNLmGJHqlaA==","X-Forwarded-For":"127.0.0.1, 127.0.0.2","X-Forwarded-Port":"443","X-Forwarded-Proto":"https"},"multiValueHeaders":{"Accept":["text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"],"Accept-Encoding":["gzip, deflate, sdch"],"Accept-Language":["en-US,en;q=0.8"],"Cache-Control":["max-age=0"],"CloudFront-Forwarded-Proto":["https"],"CloudFront-Is-Desktop-Viewer":["true"],"CloudFront-Is-Mobile-Viewer":["false"],"CloudFront-Is-SmartTV-Viewer":["false"],"CloudFront-Is-Tablet-Viewer":["false"],"CloudFront-Viewer-Country":["US"],"Host":["0123456789.execute-api.us-east-1.amazonaws.com"],"Upgrade-Insecure-Requests":["1"],"User-Agent":["Custom User Agent String"],"Via":["1.1 08f323deadbeefa7af34d5feb414ce27.cloudfront.net (CloudFront)"],"X-Amz-Cf-Id":["cDehVQoZnx43VYQb9j2-nvCh-9z396Uhbp027Y2JvkCPNLmGJHqlaA=="],"X-Forwarded-For":["127.0.0.1, 127.0.0.2"],"X-Forwarded-Port":["443"],"X-Forwarded-Proto":["https"]},"requestContext":{"accountId":"123456789012","resourceId":"123456","stage":"v1","requestId":"c6af9ac6-7b61-11e6-9a41-93e8deadbeef","requestTime":"09/Apr/2015:12:34:56 +0000","requestTimeEpoch":1428582896000,"identity":{"cognitoIdentityPoolId":null,"accountId":null,"cognitoIdentityId":null,"caller":null,"accessKey":null,"sourceIp":"127.0.0.1","cognitoAuthenticationType":null,"cognitoAuthenticationProvider":null,"userArn":null,"userAgent":"Custom User Agent String","user":null},"path":"/v1/payment","resourcePath":"/payment","httpMethod":"POST","apiId":"1234567890","protocol":"HTTP/1.1"}},"timestamp":"2023-03-30 11:04:21,007+0000","service":"post_payment","sampling_rate":"0.1","cold_start":true,"function_name":"PostPaymentFunction","function_memory_size":"256","function_arn":"arn:aws:lambda:us-east-1:012345678912:function:PostPaymentFunction","function_request_id":"844ea41c-ff0d-4a66-a3af-350dfc5d884a","correlation_id":"c6af9ac6-7b61-11e6-9a41-93e8deadbeef"}
-[WARNING]       2023-03-30T11:04:21.007Z        844ea41c-ff0d-4a66-a3af-350dfc5d884a    Subsegment ## lambda_handler discarded due to Lambda worker still initializing
-[WARNING]       2023-03-30T11:04:21.008Z        844ea41c-ff0d-4a66-a3af-350dfc5d884a    Subsegment ## app.post_payment discarded due to Lambda worker still initializing
-{"level":"ERROR","location":"post_payment:35","message":[{"loc":["user_id"],"msg":"field required","type":"value_error.missing"}],"timestamp":"2023-03-30 11:04:21,008+0000","service":"post_payment","sampling_rate":"0.1","cold_start":true,"function_name":"PostPaymentFunction","function_memory_size":"256","function_arn":"arn:aws:lambda:us-east-1:012345678912:function:PostPaymentFunction","function_request_id":"844ea41c-ff0d-4a66-a3af-350dfc5d884a","correlation_id":"c6af9ac6-7b61-11e6-9a41-93e8deadbeef"}
-[WARNING]       2023-03-30T11:04:21.008Z        844ea41c-ff0d-4a66-a3af-350dfc5d884a    No subsegment to end.
-[WARNING]       2023-03-30T11:04:21.008Z        844ea41c-ff0d-4a66-a3af-350dfc5d884a    No subsegment to end.
-{"statusCode": 400, "body": "{\"error\":\"Invalid payment\",\"timestamp\":\"2023-03-30T11:04:21.008180\"}", "isBase64Encoded": false, "multiValueHeaders": {"Content-Type": ["application/json"]}}END RequestId: 844ea41c-ff0d-4a66-a3af-350dfc5d884a
-REPORT RequestId: 844ea41c-ff0d-4a66-a3af-350dfc5d884a  Init Duration: 0.25 ms  Duration: 701.26 ms     Billed Duration: 702 ms Memory Size: 256 MB     Max Memory Used: 256 MB
-```
-</details>
-
-### Running Your REST API Using Docker
-
-Being able to pass events to functions is important. You may also want to test out your serverless API using a HTTP client. The SAM CLI can create a local HTTP server to run your application. 
-
-```bash
-make run
-```
-
-```bash
-Mounting PostPaymentFunction at http://127.0.0.1:3000/payment [POST]
-Mounting GetBalanceFunction at http://127.0.0.1:3000/balance/{user_id} [GET]
-You can now browse to the above endpoints to invoke your functions. You do not need to restart/reload SAM CLI while working on your functions, changes will be reflected instantly/automatically. If you used sam build before running local commands, you will need to re-run sam build for the changes to be picked up. You only need to restart SAM CLI if you update your AWS SAM template
-2023-03-30 09:47:12 WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
- * Running on http://127.0.0.1:3000
-2023-03-30 09:47:12 Press CTRL+C to quit
-```
-
-Once the server starts, you can use any HTTP client (eg curl, Postman) to interact with your API resources. You can pass in both valid and invalid inputs and test results. The images below show what is returned to your HTTP client along with what is returned in your terminal.
-
-![Valid GetBalance request](./img/start-api/01-get-balance.png)
-
-![Valid PostPayment request](./img/start-api/02-post-payment.png)
-
-![Invalid PostPayment request](./img/start-api/03-post-payment-invalid-date.png)
-
-## Next Steps
-
-Now that you have a sense of how to interact with your API locally, you will [deploy your application to AWS]().

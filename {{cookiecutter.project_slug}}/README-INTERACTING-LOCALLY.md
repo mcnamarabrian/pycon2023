@@ -253,6 +253,6 @@ Once the server starts, you can use any HTTP client (eg curl, Postman) to intera
 
 ![Invalid PostPayment request](./img/start-api/03-post-payment-invalid-date.png)
 
-## Next Steps
+## What's Next?
 
 Now that you have a sense of how to interact with your API locally, you will [test your application](./README-TESTING.md).

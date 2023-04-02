@@ -22,6 +22,6 @@ The local testing environment makes use of dependencies in the project's [Pipfil
 pipenv install --dev
 ```
 
-## Next Steps
+## What's Next?
 
 Now that you have your project dependencies installed, you can [build and interact with the API locally](./README-INTERACTING-LOCALLY.md).
