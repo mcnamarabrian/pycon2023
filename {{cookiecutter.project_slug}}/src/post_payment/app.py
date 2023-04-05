@@ -1,9 +1,10 @@
 from datetime import datetime
 import random
 
-from aws_lambda_powertools import Logger, Tracer
+from aws_lambda_powertools import Logger, Metrics, Tracer
 from aws_lambda_powertools.event_handler import APIGatewayRestResolver
 from aws_lambda_powertools.logging import correlation_paths
+from aws_lambda_powertools.metrics import MetricUnit
 from aws_lambda_powertools.utilities.parser import (
     parse,
     ValidationError
@@ -12,8 +13,9 @@ from aws_lambda_powertools.utilities.typing import LambdaContext
 
 from payment_model import Payment
 
-tracer = Tracer()
 logger = Logger()
+metrics = Metrics()
+tracer = Tracer()
 app = APIGatewayRestResolver()
 
 # Create a list of weighted outcomes - 90% of them will be success, 10% failure
@@ -29,8 +31,9 @@ weighted_outcomes = random.choices(
 def post_payment() -> dict:
     data: dict = app.current_event.json_body
     timestamp = datetime.now().isoformat()
+    payment_outcome = random.choice(weighted_outcomes)
     try:
-        parsed_payment: Payment = parse(data, model=Payment)
+        parse(data, model=Payment)
     except ValidationError as e:
         logger.error(e.json())
         return {
@@ -41,15 +44,20 @@ def post_payment() -> dict:
     logger.info({
         "user_id": data['user_id'],
         "amount": data['amount'],
-        "outcome": random.choice(weighted_outcomes),
+        "outcome": payment_outcome,
         "payment_date": data['payment_date'],
         "timestamp": timestamp
     })
 
+    if payment_outcome == 'success':
+        metrics.add_metric(name="SuccessfulPayment", unit=MetricUnit.Count, value=data['amount'])
+    else:
+        metrics.add_metric(name="UnsuccessfulPayment", unit=MetricUnit.Count, value=data['amount'])
+
     return {
         "user_id": data['user_id'],
         "amount": data['amount'],
-        "outcome": random.choice(weighted_outcomes),
+        "outcome": payment_outcome,
         "payment_date": data['payment_date'],
         "timestamp": timestamp
     }, 200

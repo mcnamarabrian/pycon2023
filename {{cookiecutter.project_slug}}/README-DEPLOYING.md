@@ -211,7 +211,7 @@ You can use any HTTP client to make your requests. The example below uses `curl`
 curl -XGET https://idio2a0qyb.execute-api.us-east-1.amazonaws.com/v1/balance/brian
 ```
 
-**NOTE:** Make use of your **GetBalanceUrl**
+**NOTE:** Make use of your **GetBalanceUrl** returned from `make deploy.guided` when issuing the HTTP request.
 
 ### Post Payment
 
@@ -221,4 +221,8 @@ curl -XPOST https://idio2a0qyb.execute-api.us-east-1.amazonaws.com/v1/payment \
 -d '{"user_id": "brian", "payment_date": "2100-05-01", "amount": 100}'
 ```
 
+**NOTE:** Make use of your **PostPaymentUrl** returned from `make deploy.guided` when issuing the HTTP request.
 
+## What's Next?
+
+Now that you've deployed your Python serverless API, you'll explore how it's been [instrumented for observability](./README-OBSERVABILITY.md).
