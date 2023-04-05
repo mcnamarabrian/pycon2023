@@ -255,11 +255,11 @@ You can now browse to the above endpoints to invoke your functions. You do not n
 
 Once the server starts, you can use any HTTP client (eg curl, Postman) to interact with your API resources. You can pass in both valid and invalid inputs and test results. The images below show what is returned to your HTTP client along with what is returned in your terminal.
 
-![Valid GetBalance request](./img/start-api/get-balance.png)
+<img width="1235" alt="get-balance" src="https://user-images.githubusercontent.com/17259/230217764-1a8c60aa-a62d-48e2-a4cf-eceb94cbb62a.png">
 
-![Valid PostPayment request](./img/start-api/post-payment.png)
+<img width="1241" alt="post-payment" src="https://user-images.githubusercontent.com/17259/230217939-adde59f6-023b-445c-a6ea-5f991171cc57.png">
 
-![Invalid PostPayment request](./img/start-api/post-payment-invalid-date.png)
+<img width="1286" alt="post-payment-invalid-date" src="https://user-images.githubusercontent.com/17259/230218042-aeb24506-e6ff-4984-b646-cc60ac6d47c9.png">
 
 ## What's Next?
 

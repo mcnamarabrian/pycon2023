@@ -72,7 +72,7 @@ fields @timestamp, @message, @logStream, @logStream
 
 Because your logs are structured, CloudWatch Logs Insights was able to discover fields automatically. Below is a representative image of all the discovered fields in the log streams in this log group.
 
-![Simple CloudWatch Logs Insights Query](./img/observability/log-insights-query-discovered-fields.png)
+<img width="2076" alt="log-insights-query-discovered-fields" src="https://user-images.githubusercontent.com/17259/230218205-f6435443-f252-4aab-8275-09681c48879b.png">
 
 Where things get more interesting is that CloudWatch Logs Insights allows you to query _multiple_ log groups. For example, if you wanted to find out the corresponding API Gateway log entry that matches `correlation_id` '193dce91-0e1b-4d4e-8cb2-a7fe5cbafa39' in your Lambda function, you can run the following query:
 
@@ -83,7 +83,7 @@ fields @timestamp, service, correlation_id, @log, @message
 
 In this case, `correlation_id` is used in your Lambda log and `requestId` is used in your API Gateway logs. In this example, you can see the relevant access log data.
 
-![CloudWatch Logs Insights Query Across Multiple Log Groups](./img/observability/log-insights-query-multiple-log-groups.png)
+<img width="2476" alt="log-insights-query-multiple-log-groups" src="https://user-images.githubusercontent.com/17259/230218391-450d3d0b-c708-4b9a-8afe-87b3a9b16122.png">
 
 NOTE: The [post_payment function handler](./src/post_payment/app.py) is making use of the `correlation_id_path=correlation_paths.API_GATEWAY_REST` argument to the `@logger.inject_lambda_context` decorator. This is why the filter makes use of the `correlation_id` (AWS Lambda) and `requestId` (API Gateway). The built-in correlation paths can be found in the [awslabs/aws-lambda-powertools-python](https://github.com/awslabs/aws-lambda-powertools-python/blob/develop/aws_lambda_powertools/logging/correlation_paths.py) repository.
 
@@ -96,7 +96,7 @@ Powertools emits metric data into CloudWatch logs using [Embedded Metric Format]
 ![AWS Metric Terminology](https://awslabs.github.io/aws-lambda-powertools-python/2.11.0/media/metrics_terminology.png)
 _From [AWS Lambda Powertools for Python](https://awslabs.github.io/aws-lambda-powertools-python/latest/core/metrics/)_
 
-You are writing metrics to the _pycon-us-2023_ namespace in your post_payment function. You are collecting the total amount of successful and unsuccessful payment amounts. The Metrics utility emits the following representative data to a log stream in your CloudWatch **PostPaymentFunction** log group.
+You are writing metrics to the _pycon-us-2023_ namespace in your **PostPayment**. You are collecting the total amount of successful and unsuccessful payment amounts. The Metrics utility emits the following representative data to a log stream in your CloudWatch **PostPaymentFunction** log group.
 
 ```json
 {
@@ -128,9 +128,9 @@ You are writing metrics to the _pycon-us-2023_ namespace in your post_payment fu
 
 This, in turn, creates a `SuccessfulPayment` CloudWatch Metric in the `pycon-us-2023` namespace.
 
-![Custom SuccessfulPayment Metric - Namespace](./img/observability/metrics-dashboard-with-custom-namespace.png)
-![Custom SuccessfulPayment Metric - Dimension](./img/observability/metrics-dashboard-with-dimension.png)
-![Custom SuccessfulPayment Metric - Custom Metric](./img/observability/metrics-dashboard-with-metric-name.png)
+<img width="2467" alt="metrics-dashboard-with-custom-namespace" src="https://user-images.githubusercontent.com/17259/230218498-8f738276-c2a7-49d0-96f8-ebcca54645d6.png">
+<img width="2462" alt="metrics-dashboard-with-dimension" src="https://user-images.githubusercontent.com/17259/230218634-78024157-35eb-4648-ad33-ab34b1ef1a7c.png">
+<img width="2462" alt="metrics-dashboard-with-metric-name" src="https://user-images.githubusercontent.com/17259/230218693-29a4dc49-630c-4243-9fca-c8719aeef5c9.png">
 
 
 ## Tracing
@@ -145,43 +145,43 @@ Let's explore the capabilities afforded by using AWS X-Ray.
 
 AWS X-Ray will generate a service map our our serverless application because you've enabled tracing in the Globals section of your [SAM template](./template.yaml). Even if you don't instrument your code you will still have a service map generated. Below is a sample map of your application, including the **CardApi** API Gateway and **PostPaymentFunction** and **** Lambda functions.
 
-![AWS X-Ray Service Map](./img/observability/traces-service-map-overview.png)
+<img width="2511" alt="traces-service-map-overview" src="https://user-images.githubusercontent.com/17259/230219377-a0b4add7-990f-4821-85dc-60f710f69bd1.png">
 
 You have the ability to drill down into specific nodes if necessary.
 
-![AWS X-Ray Node Selection](./img/observability/traces-service-map-node-selection.png)
+<img width="2507" alt="traces-service-map-node-selection" src="https://user-images.githubusercontent.com/17259/230219310-ce1766cc-d324-486a-8b3b-f495d6b19a22.png">
 
 ## Viewing and Searching Traces
 
 You can dig deeper into interactions by viewing traces for a given period. The default view presents all traces for the period.
 
-![AWS X-Ray Trace Overview](./img/observability/traces-all-traces.png)
+<img width="2432" alt="traces-all-traces" src="https://user-images.githubusercontent.com/17259/230218883-87fc344c-e95b-44ac-a94e-782b30f1f9b8.png">
 
 You can dig into representative traces to get more detailed information. In this example, a request to the **GetBalanceFunction** is explored.
 
-![AWS X-Ray - GetBalance Function](./img/observability/traces-ColdStart-Service-get_balance.png)
+<img width="2719" alt="traces-ColdStart-Service-get_balance" src="https://user-images.githubusercontent.com/17259/230218966-a23d6eb1-7365-45ba-abe9-44507d33b51e.png">
 
 You can see each of the segments of the trace. Each segment includes the service, response code, and duration. In this manner, you can see not just that an interaction occurred but what happened along the way. Because you are using AWS Lambda Powertools, you can also see default annotations added to segments. The decorator `@tracer.capture_lambda_handler` coupled with the `POWERTOOLS_SERVICE_NAME` variable in your [template.yaml](./template.yaml) makes this possible. You don't need to further add to your code - you simply made use of built-in functionality.
 
 If you want to further instrument your code, you can take advantage of annotations and metadata. Your **PostPaymentFunction** includes the same decorator as your **GetBalanceFunction** and _also_ includes an annotation - the `user_id` that made the payment.
 
-![AWS X-Ray - PostPayment Function 1](./img/observability/traces-ColdStart-Service-post_payment.png)
+<img width="2725" alt="traces-ColdStart-Service-post_payment" src="https://user-images.githubusercontent.com/17259/230219067-d111d602-fb14-48f4-807e-3e49abbec813.png">
 
-![AWS X-Ray - PostPayment Function 2](./img/observability/traces-user_id-annotation.png)
+<img width="2726" alt="traces-user_id-annotation" src="https://user-images.githubusercontent.com/17259/230219429-567f6090-2afd-418f-aa36-08d844ea3a00.png">
 
 Annotations can be helpful if you need to query your traces to dive deeper along a set of properties. Because you have these annotations in your traces, you can run queries in AWS X-Ray to:
 
 * Find traces for the `post_payment` service
 
-![AWS X-Ray - Query by Service](./img/observability/traces-query-service-post_payment.png)
+<img width="2436" alt="traces-query-service-post_payment" src="https://user-images.githubusercontent.com/17259/230219186-9a9cdb90-fc00-452d-b6f3-cbb64cc1e1e7.png">
 
 * Find traces of cold starts
 
-![AWS X-Ray - Query ColdStart](./img/observability/traces-query-ColdStart.png)
+<img width="2438" alt="traces-query-ColdStart" src="https://user-images.githubusercontent.com/17259/230219131-39f721b0-4cdc-4fb6-a745-d7c2a7566699.png">
 
 * Find traces that match a specific `user_id`
 
-![AWS X-Ray - Query user_id](./img/observability/traces-query-user_id.png)
+<img width="2436" alt="traces-query-user_id" src="https://user-images.githubusercontent.com/17259/230219246-37c9c9d8-0d01-48de-ad12-50e0e7f5db72.png">
 
 ## What's Next?
 
