@@ -48,6 +48,7 @@ def post_payment() -> dict:
         "payment_date": data['payment_date'],
         "timestamp": timestamp
     })
+    tracer.put_annotation(key='user_id', value=data['user_id'])
 
     if payment_outcome == 'success':
         metrics.add_metric(name="SuccessfulPayment", unit=MetricUnit.Count, value=data['amount'])

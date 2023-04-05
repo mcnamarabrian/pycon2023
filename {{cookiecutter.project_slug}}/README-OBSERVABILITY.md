@@ -57,6 +57,36 @@ By default, a simple `log` statement will also include [standard structured keys
 }
 ```
 
+### Making Use of Structured Logs
+
+The primary benefit of structured logging is that it becomes much easier to search logs. In this example, you will see how to search for payment requests from specific users using [CloudWatch Logs Insights](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/AnalyzingLogData.html).
+
+
+The query below uses the **PostPaymentFunctionLogGroup** to retrieve warm invokes where is no cold start. What is interesting is the ability to filter results using the non-standard `cold_start` field.
+
+```bash
+fields @timestamp, @message, @logStream, @logStream
+| filter cold_start = 0
+| filter location like /post_payment/
+```
+
+Because your logs are structured, CloudWatch Logs Insights was able to discover fields automatically. Below is a representative image of all the discovered fields in the log streams in this log group.
+
+![Simple CloudWatch Logs Insights Query](./img/observability/log-insights-query-discovered-fields.png)
+
+Where things get more interesting is that CloudWatch Logs Insights allows you to query _multiple_ log groups. For example, if you wanted to find out the corresponding API Gateway log entry that matches `correlation_id` '193dce91-0e1b-4d4e-8cb2-a7fe5cbafa39' in your Lambda function, you can run the following query:
+
+```bash
+fields @timestamp, service, correlation_id, @log, @message
+| filter (correlation_id = '193dce91-0e1b-4d4e-8cb2-a7fe5cbafa39' or requestId = '193dce91-0e1b-4d4e-8cb2-a7fe5cbafa39')
+```
+
+In this case, `correlation_id` is used in your Lambda log and `requestId` is used in your API Gateway logs. In this example, you can see the relevant access log data.
+
+![CloudWatch Logs Insights Query Across Multiple Log Groups](./img/observability/log-insights-query-multiple-log-groups.png)
+
+NOTE: The [post_payment function handler](./src/post_payment/app.py) is making use of the `correlation_id_path=correlation_paths.API_GATEWAY_REST` argument to the `@logger.inject_lambda_context` decorator. This is why the filter makes use of the `correlation_id` (AWS Lambda) and `requestId` (API Gateway). The built-in correlation paths can be found in the [awslabs/aws-lambda-powertools-python](https://github.com/awslabs/aws-lambda-powertools-python/blob/develop/aws_lambda_powertools/logging/correlation_paths.py) repository.
+
 ## Metrics
 
 Lambda functions emit a number of [standard metrics related to invocations, performance, and concurrency](https://docs.aws.amazon.com/lambda/latest/dg/monitoring-metrics.html). While this is helpful, there is often time a need to publish custom, business-level metrics. You are collecting such metrics - payment information - in your Lambda application. AWS Lambda Powertools makes this trivial, and does away with the need to use the [boto3 CloudWatch.Client.put_metric_data](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/cloudwatch/client/put_metric_data.html) function.
@@ -98,9 +128,61 @@ You are writing metrics to the _pycon-us-2023_ namespace in your post_payment fu
 
 This, in turn, creates a `SuccessfulPayment` CloudWatch Metric in the `pycon-us-2023` namespace.
 
-![Custom SuccessfulPayment metric](./img/observability/01-custom-metric-successfulpayment.png)
+![Custom SuccessfulPayment Metric - Namespace](./img/observability/metrics-dashboard-with-custom-namespace.png)
+![Custom SuccessfulPayment Metric - Dimension](./img/observability/metrics-dashboard-with-dimension.png)
+![Custom SuccessfulPayment Metric - Custom Metric](./img/observability/metrics-dashboard-with-metric-name.png)
 
 
 ## Tracing
 
+The services you are using in your serverless application are integrated with [AWS X-Ray](https://aws.amazon.com/xray/), a service designed to allow engineers to trace requests as they travel through your application. This means that our services can add a trace ID to a new request if one is not already present and it can add to an existing trace. In this manner, requests that flow to your **CardApi** are traced. The downstream **GetBalanceFunction** and **PostPaymentFunction** can add information to these traces.
 
+**NOTE:** AWS X-Ray will sample requests. This means that not all requests will necessarily be traced. Please refer to the [AWS X-Ray documentation](https://docs.aws.amazon.com/xray/latest/devguide/xray-console-sampling.html) for information on configuring sampling rules.
+
+Let's explore the capabilities afforded by using AWS X-Ray.
+
+## Viewing the Service Map
+
+AWS X-Ray will generate a service map our our serverless application because you've enabled tracing in the Globals section of your [SAM template](./template.yaml). Even if you don't instrument your code you will still have a service map generated. Below is a sample map of your application, including the **CardApi** API Gateway and **PostPaymentFunction** and **** Lambda functions.
+
+![AWS X-Ray Service Map](./img/observability/traces-service-map-overview.png)
+
+You have the ability to drill down into specific nodes if necessary.
+
+![AWS X-Ray Node Selection](./img/observability/traces-service-map-node-selection.png)
+
+## Viewing and Searching Traces
+
+You can dig deeper into interactions by viewing traces for a given period. The default view presents all traces for the period.
+
+![AWS X-Ray Trace Overview](./img/observability/traces-all-traces.png)
+
+You can dig into representative traces to get more detailed information. In this example, a request to the **GetBalanceFunction** is explored.
+
+![AWS X-Ray - GetBalance Function](./img/observability/traces-ColdStart-Service-get_balance.png)
+
+You can see each of the segments of the trace. Each segment includes the service, response code, and duration. In this manner, you can see not just that an interaction occurred but what happened along the way. Because you are using AWS Lambda Powertools, you can also see default annotations added to segments. The decorator `@tracer.capture_lambda_handler` coupled with the `POWERTOOLS_SERVICE_NAME` variable in your [template.yaml](./template.yaml) makes this possible. You don't need to further add to your code - you simply made use of built-in functionality.
+
+If you want to further instrument your code, you can take advantage of annotations and metadata. Your **PostPaymentFunction** includes the same decorator as your **GetBalanceFunction** and _also_ includes an annotation - the `user_id` that made the payment.
+
+![AWS X-Ray - PostPayment Function 1](./img/observability/traces-ColdStart-Service-post_payment.png)
+
+![AWS X-Ray - PostPayment Function 2](./img/observability/traces-user_id-annotation.png)
+
+Annotations can be helpful if you need to query your traces to dive deeper along a set of properties. Because you have these annotations in your traces, you can run queries in AWS X-Ray to:
+
+* Find traces for the `post_payment` service
+
+![AWS X-Ray - Query by Service](./img/observability/traces-query-service-post_payment.png)
+
+* Find traces of cold starts
+
+![AWS X-Ray - Query ColdStart](./img/observability/traces-query-ColdStart.png)
+
+* Find traces that match a specific `user_id`
+
+![AWS X-Ray - Query user_id](./img/observability/traces-query-user_id.png)
+
+## What's Next?
+
+Now that you have a sense of how to instrument components of your API for observability, you will [take stock of the ground you've covered in this repository](./README-CONCLUSION.md).

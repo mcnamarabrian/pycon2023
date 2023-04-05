@@ -2,6 +2,14 @@
 
 The AWS SAM CLI allows developers to build and test their applications locally without needing to deploy resources to the AWS cloud. This allows for much faster, iterative development cycles.
 
+## Ensure the Template is Valid and Follows Best Practices
+
+The AWS SAM CLI has a capability to perform linting on your template to make sure it's valid. This is done through the use of [cfn-lint](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/validate-cfn-lint.html). The linter checks your template [template.yaml](./template.yaml) against the [AWS CloudFormation resource specification](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cfn-resource-specification.html) to ensure your template is syntactically correct. It also performs a number of [rule checks](https://github.com/aws-cloudformation/cfn-lint/blob/main/docs/rules.md) to ensure your template is following best practices.
+
+```bash
+sam validate --lint
+```
+
 ## Building the API
 
 In order to run the application, you will need to first `build` it. The [Makefile](./Makefile) has a target that allows for a clean building of artifacts.
@@ -247,11 +255,11 @@ You can now browse to the above endpoints to invoke your functions. You do not n
 
 Once the server starts, you can use any HTTP client (eg curl, Postman) to interact with your API resources. You can pass in both valid and invalid inputs and test results. The images below show what is returned to your HTTP client along with what is returned in your terminal.
 
-![Valid GetBalance request](./img/start-api/01-get-balance.png)
+![Valid GetBalance request](./img/start-api/get-balance.png)
 
-![Valid PostPayment request](./img/start-api/02-post-payment.png)
+![Valid PostPayment request](./img/start-api/post-payment.png)
 
-![Invalid PostPayment request](./img/start-api/03-post-payment-invalid-date.png)
+![Invalid PostPayment request](./img/start-api/post-payment-invalid-date.png)
 
 ## What's Next?
 

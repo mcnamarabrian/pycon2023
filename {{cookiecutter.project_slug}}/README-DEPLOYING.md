@@ -208,7 +208,7 @@ At this point, you can issue `GET` requests to your **GetBalanceUrl** and `POST`
 You can use any HTTP client to make your requests. The example below uses `curl`.
 
 ```bash
-curl -XGET https://idio2a0qyb.execute-api.us-east-1.amazonaws.com/v1/balance/brian
+curl -XGET https://idio2a0qyb.execute-api.us-east-1.amazonaws.com/v1/balance/user123
 ```
 
 **NOTE:** Make use of your **GetBalanceUrl** returned from `make deploy.guided` when issuing the HTTP request.
@@ -218,11 +218,13 @@ curl -XGET https://idio2a0qyb.execute-api.us-east-1.amazonaws.com/v1/balance/bri
 ```bash
 curl -XPOST https://idio2a0qyb.execute-api.us-east-1.amazonaws.com/v1/payment \
 -H 'Content-Type: application/json' \
--d '{"user_id": "brian", "payment_date": "2100-05-01", "amount": 100}'
+-d '{"user_id": "user123", "payment_date": "2100-05-01", "amount": 100}'
 ```
 
 **NOTE:** Make use of your **PostPaymentUrl** returned from `make deploy.guided` when issuing the HTTP request.
 
 ## What's Next?
+
+In this example, you are deploying the application from your workstation. The good news is that you can deploy your application using other CI/CD tooling like [AWS CodeDeploy](https://docs.aws.amazon.com/codedeploy/latest/userguide/tutorial-lambda-sam.html), [Jenkins](https://aws.amazon.com/blogs/compute/building-a-jenkins-pipeline-with-aws-sam/), and [Github Actions](https://aws.amazon.com/blogs/compute/using-github-actions-to-deploy-serverless-applications/).
 
 Now that you've deployed your Python serverless API, you'll explore how it's been [instrumented for observability](./README-OBSERVABILITY.md).
