@@ -2,7 +2,11 @@
 
 One of the fundamental things that changes with serverless applications is how we observe them. In many respects, these types of application force you to be more disciplined. There is no server or container that you can connect to in order to review logs, or look at network connections, or run local tracing. You have to build this in at the start.
 
-There are three pillars of observability - logging, metrics, and traces. The application you've deployed has mechanisms to emit all three, courtesy of [AWS Lambda Powertools for Python](https://awslabs.github.io/aws-lambda-powertools-python/latest/). Let's dive into each in turn.
+There are three pillars of observability - logging, metrics, and traces. The application you've deployed has mechanisms to emit all three, courtesy of [AWS Lambda Powertools for Python](https://awslabs.github.io/aws-lambda-powertools-python/latest/). 
+
+![PyCon-Observability](https://user-images.githubusercontent.com/17259/230391647-cc0eb8a4-e2c6-4916-b8d9-dd536de3e510.png)
+
+Let's dive into each in turn.
 
 ## Logging
 
@@ -93,7 +97,10 @@ Lambda functions emit a number of [standard metrics related to invocations, perf
 
 Powertools emits metric data into CloudWatch logs using [Embedded Metric Format](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch_Embedded_Metric_Format_Specification.html). The CloudWatch Logs service, in turn, consumes these entries asynchronously so your Lambda function can return to providing business value without blocking on a metric write.
 
-![AWS Metric Terminology](https://awslabs.github.io/aws-lambda-powertools-python/2.11.0/media/metrics_terminology.png)
+<p>
+<img src="https://awslabs.github.io/aws-lambda-powertools-python/2.11.0/media/metrics_terminology.png">
+</p>
+
 _From [AWS Lambda Powertools for Python](https://awslabs.github.io/aws-lambda-powertools-python/latest/core/metrics/)_
 
 You are writing metrics to the _pycon-us-2023_ namespace in your **PostPayment**. You are collecting the total amount of successful and unsuccessful payment amounts. The Metrics utility emits the following representative data to a log stream in your CloudWatch **PostPaymentFunction** log group.

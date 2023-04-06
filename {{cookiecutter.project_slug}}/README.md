@@ -2,6 +2,8 @@
 
 This project contains a [AWS serverless application](https://aws.amazon.com/serverless) - a representative Application Programming Interface (API) that allows users to get balance information and post payments. It includes best practices for developing, deploying, and observing serverless applications.
 
+![PyCon-LogicalArchitecture](https://user-images.githubusercontent.com/17259/230391371-8b490174-24a2-4649-9572-230f182ea569.png)
+
 ## Dependencies
 
 The sample application uses the Serverless Application Model to build and deploy. requires the following dependencies:
