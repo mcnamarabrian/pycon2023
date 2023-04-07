@@ -4,7 +4,7 @@ One of the fundamental things that changes with serverless applications is how w
 
 There are three pillars of observability - logging, metrics, and traces. The application you've deployed has mechanisms to emit all three, courtesy of [AWS Lambda Powertools for Python](https://awslabs.github.io/aws-lambda-powertools-python/latest/). 
 
-![PyCon-Observability](https://user-images.githubusercontent.com/17259/230391647-cc0eb8a4-e2c6-4916-b8d9-dd536de3e510.png)
+![PyCon-Observability](https://user-images.githubusercontent.com/17259/230590257-aec9b875-c021-48f4-8428-560e444c0abb.png)
 
 Let's dive into each in turn.
 
