@@ -12,8 +12,6 @@ The sample application uses the Serverless Application Model to build and deploy
 
 * [Python3.9](https://www.python.org/downloads/release/python-390/)
 
-* [Pipenv](https://pipenv.pypa.io/en/latest/)
-
 * Optional: [Docker Desktop](https://www.docker.com/products/docker-desktop/) if deploying and testing locally
 
 ## Installing Python Dependencies
@@ -21,7 +19,7 @@ The sample application uses the Serverless Application Model to build and deploy
 The local testing environment makes use of dependencies in the project's [Pipfile](./Pipfile). These dependencies need to be installed by running the following command:
 
 ```bash
-pipenv install --dev
+make install
 ```
 
 ## What's Next?

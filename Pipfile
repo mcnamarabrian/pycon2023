@@ -4,12 +4,15 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+"aws-lambda-powertools[all]" = "*"
 
 [dev-packages]
-cookiecutter = "*"
-pytest-cookies = "*"
+"aws-lambda-powertools[all]" = "*"
+boto3 = "*"
+boto3-stubs = "*"
 pytest = "*"
-flake8 = "*"
+pytest-cov = "*"
+pydantic = "*"
 
 [requires]
 python_version = "3.9"
