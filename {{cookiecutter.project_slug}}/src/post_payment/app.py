@@ -1,8 +1,14 @@
 from datetime import datetime
+from http import HTTPStatus
 import random
+import json
 
 from aws_lambda_powertools import Logger, Metrics, Tracer
-from aws_lambda_powertools.event_handler import APIGatewayRestResolver
+from aws_lambda_powertools.event_handler import (
+    APIGatewayRestResolver,
+    Response,
+    content_types,
+)
 from aws_lambda_powertools.logging import correlation_paths
 from aws_lambda_powertools.metrics import MetricUnit
 from aws_lambda_powertools.utilities.parser import (
@@ -36,10 +42,14 @@ def post_payment() -> dict:
         parse(data, model=Payment)
     except ValidationError as e:
         logger.error(e.json())
-        return {
-            "error": "Invalid payment",
-            "timestamp": timestamp,
-        }, 400
+        return Response(
+            body=json.dumps({
+                "error": "Invalid payment",
+                "timestamp": timestamp,
+            }),
+            content_type=content_types.APPLICATION_JSON,
+            status_code=HTTPStatus.BAD_REQUEST.value,  # 400
+        )
 
     logger.info({
         "user_id": data['user_id'],
@@ -55,14 +65,20 @@ def post_payment() -> dict:
     else:
         metrics.add_metric(name="UnsuccessfulPayment", unit=MetricUnit.Count, value=data['amount'])
 
-    return {
+    payload = {
         "user_id": data['user_id'],
         "amount": data['amount'],
         "outcome": payment_outcome,
         "payment_date": data['payment_date'],
         "timestamp": timestamp
-    }, 200
-    
+    }
+
+    return Response(
+        body=json.dumps(payload),
+        content_type=content_types.APPLICATION_JSON,
+        status_code=HTTPStatus.OK.value,  # 200
+    )
+
 # You can continue to use other utilities just as before
 @logger.inject_lambda_context(
     correlation_id_path=correlation_paths.API_GATEWAY_REST{%- if cookiecutter.production_environment == "no" %},
