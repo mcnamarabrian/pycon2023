@@ -23,7 +23,7 @@ install:
 dev:
 	$(info [*] Installing pipenv project dependencies)
 	@$(PIPENV) install
-	@$(PIPENV) install -d
+	@$(PIPENV) install --dev
 
 shell:
 	@$(PIPENV) shell
@@ -54,6 +54,11 @@ invoke-invalid-date-post-payment: ##=> Run SAM Local function with a given event
 
 invoke-missing-userid-post-payment: ##=> Run SAM Local function with a given event payload
 	@sam local invoke PostPaymentFunction --event events/invalid_missing_userid_post_payment.json
+
+generate-requirements: ##=> Populate requirements.txt file for each function based on Pipfile
+	$(info [*] Populating requirements.txt in src/get_balance and src/post_payment based on [packages] in Pipfile)
+	@$(PIPENV) requirements > src/get_balance/requirements.txt
+	@$(PIPENV) requirements > src/post_payment/requirements.txt
 
 run: ##=> Run SAM Local API GW and can optionally run new containers connected to a defined network
 	@test -z ${NETWORK} \
@@ -110,4 +115,28 @@ define HELP_MESSAGE
 
 	...::: Run SAM Local API Gateway within a Docker Network :::...
 	$ make run NETWORK="sam-network"
+
+	...::: Creates function requirements.txt from Pipfile :::...
+	$ make run generate-requirements
+
+	Invoke events locally:
+
+	...::: Run SAM Local Invoke with a Valid Balance Event :::...
+	$ make invoke-valid-get-balance
+
+	...::: Run SAM Local Invoke with a Valid Payment Event :::...
+	$ make invoke-valid-post-payment
+
+	...::: Run SAM Local Invoke with a Invalid Balance Event (missing user_id) :::...
+	$ make invoke-invalid-get-balance
+
+	...::: Run SAM Local Invoke with a Invalid Payment Event (invalid amount) :::...
+	$ make invoke-invalid-amount-post-payment
+
+	...::: Run SAM Local Invoke with a Invalid Payment Event (invalid date) :::...
+	$ make invoke-invalid-date-post-payment
+
+	...::: Run SAM Local Invoke with a Invalid Payment Event (missing user_id) :::...
+	$ make invoke-missing-userid-post-payment
+
 endef

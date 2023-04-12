@@ -8,7 +8,7 @@ The code can be tested using the following code:
 make test
 ```
 
-**NOTE:** If you haven't run `pipenv install --dev` you're going to get some errors.
+**NOTE:** If you haven't already run `make install` you're going to get errors.
 
 ## What Is Being Tested?
 
